@@ -2,14 +2,14 @@ import { NgModule }       from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
 
-import { Ng2BootstrapModule } from 'ng2-bootstrap/ng2-bootstrap';
+import { Ng2BootstrapModule }     from 'ng2-bootstrap/ng2-bootstrap';
 
-import { AppComponent }        from './app.component';
-import { routing }             from './app.routing';
-import { DashboardComponent }  from './dashboard.component';
-import { HeroDetailComponent } from './hero-detail.component';
-import { HeroesComponent }     from './heroes.component';
-import { HeroService }         from './hero.service';
+import { AppComponent }           from './app.component';
+import { routing }                from './app.routing';
+
+import { ProgramsComponent }      from './programs/programs.component';
+import { ProgramDetailComponent } from './programs/program-detail.component';
+import { ProgramService }         from './programs/program.service';
 
 @NgModule({
   imports: [
@@ -20,12 +20,11 @@ import { HeroService }         from './hero.service';
   ],
   declarations: [
     AppComponent,
-    DashboardComponent,
-    HeroDetailComponent,
-    HeroesComponent
+    ProgramsComponent,
+    ProgramDetailComponent
   ],
   providers: [
-    HeroService
+    ProgramService
   ],
   bootstrap: [ AppComponent ]
 })

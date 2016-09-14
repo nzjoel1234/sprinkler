@@ -1,0 +1,49 @@
+<ol class="breadcrumb">
+  <li><a routerLink="/programs">Programs</a></li>
+  <li *ngIf="program">{{program.name}}</li>
+</ol>
+<div *ngIf="program">
+  <h2>Edit {{program.name}}</h2>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="programName">Name</label>
+        <input id="programName"
+               class="form-control"
+               type="text"
+               placeholder="Name"
+               [(ngModel)]="program.name">
+      </div>
+      <div class="form-group">
+        <label>Auto-Run</label>
+        <div class="radio" *ngFor="let programScheduleType of programScheduleTypes">
+          <label>
+            <input type="radio"
+                   [(ngModel)]="program.programScheduleType"
+                   [value]="programScheduleType.value">
+            {{programScheduleType.display}}
+          </label>
+        </div>
+      </div>
+      <div class="form-group" *ngIf="showDaySelection()">
+        <label>Day Selection</label>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.monday">Monday</label></div>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.tuesday">Tuesday</label></div>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.wednesday">Wednesday</label></div>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.thursday">Thursday</label></div>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.friday">Friday</label></div>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.saturday">Saturday</label></div>
+        <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.sunday">Sunday</label></div>
+      </div>
+      <div class="form-group">
+        <label for="startTime">Time</label>
+        <timepicker id="startTime"
+                    [(ngModel)]="startTime"
+                    (change)="startTimeChanged()"
+                    [showMeridian]="false"
+                    [showSpinners]="false">
+        </timepicker>
+      </div>
+    </div>
+  </div>
+</div>

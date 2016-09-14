@@ -1,0 +1,13 @@
+{
+  "jwolfe.file-tree-exclude.list": [
+    "node_modules",
+    "bower_components",
+    ".git",
+    "dist",
+    "vendor",
+    "app.component.js",
+    "bin",
+    "obj",
+    "*.js.map"
+  ]
+}

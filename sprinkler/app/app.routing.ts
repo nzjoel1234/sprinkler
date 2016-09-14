@@ -1,27 +1,22 @@
 import { ModuleWithProviders }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { DashboardComponent }      from './dashboard.component';
-import { HeroDetailComponent }      from './hero-detail.component';
-import { HeroesComponent }      from './heroes.component';
+import { ProgramsComponent }       from './programs/programs.component';
+import { ProgramDetailComponent }  from './programs/program-detail.component';
 
 const appRoutes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/programs',
     pathMatch: 'full'
   },
   {
-    path: 'dashboard',
-    component: DashboardComponent
+    path: 'programs',
+    component: ProgramsComponent
   },
   {
-    path: 'detail/:id',
-    component: HeroDetailComponent
-  },
-  {
-    path: 'heroes',
-    component: HeroesComponent
+    path: 'programs/:id',
+    component: ProgramDetailComponent
   }
 ];
 

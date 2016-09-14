@@ -1,0 +1,32 @@
+<ol class="breadcrumb">
+  <li>Programs</li>
+</ol>
+<h2>
+  Programs
+</h2>
+<div class="row">
+  <div class="col-xs-1">
+    <button class="btn text-right" type="button" title="new">
+      <span class="glyphicon glyphicon-plus"></span>
+    </button>
+  </div>
+</div>
+<div class="row top-buffer">
+  <div class="col-xs-12">
+  <ul class="list-group">
+    <li *ngFor="let program of programs"
+        class="list-group-item">
+      <button class="btn text-right"
+              type="button"
+              title="edit"
+              (click)="goToDetail(program)">
+        <span class="glyphicon glyphicon-pencil"></span>
+      </button>
+      <button class="btn text-right" type="button" title="delete">
+        <span class="glyphicon glyphicon-trash"></span>
+      </button>
+      {{program.name}}
+    </li>
+  </ul>
+  </div>
+</div>
