@@ -43,7 +43,8 @@
               </td>
               <td>
                 <select class="form-control" [(ngModel)]="scheduleItem.zone">
-                  <option *ngFor="let zone of zones" value="{{zone}}">{{zone.name}}</option>
+                  <option *ngFor="let zone of zones"
+                          value="{{zone.id}}">{{zone.name}}</option>
                 </select>
               </td>
               <td>

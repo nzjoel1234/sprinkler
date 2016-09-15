@@ -67,7 +67,6 @@ export class ProgramDetailComponent implements OnInit {
   addScheduleItem(): void {
     if (!!this.zones && this.zones.length == 0) return;
     let item = new ProgramScheduleItem();
-    item.zone = this.zones[0];
     item.minutes = 20;
     this.program.scheduleItems.push(item);
   }

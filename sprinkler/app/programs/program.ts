@@ -23,7 +23,7 @@ export class Program {
 }
 
 export class ProgramScheduleItem {
-  zone: Zone;
+  zoneId: number;
   minutes: number;
 }
 
