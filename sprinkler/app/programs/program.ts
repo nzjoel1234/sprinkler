@@ -1,12 +1,12 @@
 import { Zone } from './../zones/zone';
 
 export class Program {
-  id: number;
+  id: number = 0;
   name: string;
-  scheduleItems: ProgramScheduleItem[];
-  programScheduleType: ProgramScheduleType;
-  startTimeHours: number;
-  startTimeMinutes: number;
+  scheduleItems: ProgramScheduleItem[] = [];
+  programScheduleType: ProgramScheduleType = ProgramScheduleType.ManualOnly;
+  startTimeHours: number = 0;
+  startTimeMinutes: number = 0;
   monday: boolean;
   tuesday: boolean;
   wednesday: boolean;
@@ -14,10 +14,6 @@ export class Program {
   friday: boolean;
   saturday: boolean;
   sunday: boolean;
-  
-  constructor() {
-    this.scheduleItems = [];
-  }
   
   getRunningTime(): number {
     return this.scheduleItems
