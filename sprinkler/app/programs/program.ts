@@ -1,6 +1,9 @@
+import { Zone } from './../zones/zone';
+
 export class Program {
   id: number;
   name: string;
+  scheduleItems: ProgramScheduleItem[];
   programScheduleType: ProgramScheduleType;
   startTimeHours: number;
   startTimeMinutes: number;
@@ -11,6 +14,21 @@ export class Program {
   friday: boolean;
   saturday: boolean;
   sunday: boolean;
+  
+  constructor() {
+    this.scheduleItems = [];
+  }
+  
+  getRunningTime(): number {
+    return this.scheduleItems
+      .map(item => item.minutes)
+      .reduce((prev, curr) => prev + curr, 0);
+  }
+}
+
+export class ProgramScheduleItem {
+  zone: Zone;
+  minutes: number;
 }
 
 export enum ProgramScheduleType {

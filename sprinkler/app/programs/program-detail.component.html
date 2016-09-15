@@ -15,6 +15,47 @@
                [(ngModel)]="program.name">
       </div>
       <div class="form-group">
+        <label>Schedule</label>
+          <table class="table">
+          <thead>
+            <tr>
+              <th class="col-xs-1">
+                <button class="btn btn-sm btn-success text-right"
+                        type="button"
+                        title="add"
+                        (click)="addScheduleItem()">
+                  <span class="glyphicon glyphicon-plus"></span>&nbsp;
+                </button>
+              </th>
+              <th class="col-xs-7">Zone</th>
+              <th class="col-xs-3">Minutes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let scheduleItem of program.scheduleItems">
+              <td>
+                <button class="btn btn-sm btn-danger text-right"
+                        type="button"
+                        title="remove"
+                        (click)="removeScheduleItem(scheduleItem)">
+                  <span class="glyphicon glyphicon-minus"></span>&nbsp;
+                </button>
+              </td>
+              <td>
+                <select class="form-control" [(ngModel)]="scheduleItem.zone">
+                  <option *ngFor="let zone of zones" value="{{zone}}">{{zone.name}}</option>
+                </select>
+              </td>
+              <td>
+                <input type="number"
+                       class="form-control"
+                       [(ngModel)]="scheduleItem.minutes"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-group">
         <label>Auto-Run</label>
         <div class="radio" *ngFor="let programScheduleType of programScheduleTypes">
           <label>
@@ -25,6 +66,15 @@
           </label>
         </div>
       </div>
+      <div class="form-group" *ngIf="showTimeSelection()">
+        <label for="startTime">Time</label>
+        <timepicker id="startTime"
+                    [(ngModel)]="startTime"
+                    (change)="startTimeChanged()"
+                    [showMeridian]="false"
+                    [showSpinners]="false">
+        </timepicker>
+      </div>
       <div class="form-group" *ngIf="showDaySelection()">
         <label>Day Selection</label>
         <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.monday">Monday</label></div>
@@ -34,15 +84,6 @@
         <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.friday">Friday</label></div>
         <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.saturday">Saturday</label></div>
         <div class="checkbox"><label><input type="checkbox" [(ngModel)]="program.sunday">Sunday</label></div>
-      </div>
-      <div class="form-group">
-        <label for="startTime">Time</label>
-        <timepicker id="startTime"
-                    [(ngModel)]="startTime"
-                    (change)="startTimeChanged()"
-                    [showMeridian]="false"
-                    [showSpinners]="false">
-        </timepicker>
       </div>
     </div>
   </div>

@@ -11,6 +11,8 @@ import { ProgramsComponent }      from './programs/programs.component';
 import { ProgramDetailComponent } from './programs/program-detail.component';
 import { ProgramService }         from './programs/program.service';
 
+import { ZoneService }            from './zones/zone.service';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -24,7 +26,8 @@ import { ProgramService }         from './programs/program.service';
     ProgramDetailComponent
   ],
   providers: [
-    ProgramService
+    ProgramService,
+    ZoneService
   ],
   bootstrap: [ AppComponent ]
 })

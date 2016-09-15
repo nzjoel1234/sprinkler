@@ -4,28 +4,27 @@
 <h2>
   Programs
 </h2>
-<div class="row">
-  <div class="col-xs-1">
-    <button class="btn text-right" type="button" title="new">
-      <span class="glyphicon glyphicon-plus"></span>
-    </button>
-  </div>
-</div>
 <div class="row top-buffer">
   <div class="col-xs-12">
   <ul class="list-group">
+    <li class="list-group-item">
+      <button class="btn btn-success text-right" type="button" title="new">
+        <span class="glyphicon glyphicon-plus"></span>
+        New Program
+      </button>
+    </li>
     <li *ngFor="let program of programs"
         class="list-group-item">
-      <button class="btn text-right"
+      <button class="btn  btn-primary text-right"
               type="button"
               title="edit"
               (click)="goToDetail(program)">
-        <span class="glyphicon glyphicon-pencil"></span>
+        <span class="glyphicon glyphicon-pencil"></span>&nbsp;
       </button>
-      <button class="btn text-right" type="button" title="delete">
-        <span class="glyphicon glyphicon-trash"></span>
+      <button class="btn btn-danger text-right" type="button" title="delete">
+        <span class="glyphicon glyphicon-trash"></span>&nbsp;
       </button>
-      {{program.name}}
+      {{program.name}} <i>(Running Time: {{program.getRunningTime()}} mins)</i>
     </li>
   </ul>
   </div>

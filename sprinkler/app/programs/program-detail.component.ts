@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { ProgramService } from './program.service';
-import { Program, ProgramScheduleType } from './program';
+import { Program, ProgramScheduleItem, ProgramScheduleType } from './program';
+
+import { ZoneService } from './../zones/zone.service';
+import { Zone } from './../zones/zone';
 
 @Component({
   selector: 'my-program-detail',
@@ -12,6 +15,9 @@ export class ProgramDetailComponent implements OnInit {
   
   program: Program;
   startTime: Date;
+  
+  zones: Zone[];
+  
   programScheduleTypes = [
     { display: 'Manual Only', value: ProgramScheduleType.ManualOnly },
     { display: 'All Days', value: ProgramScheduleType.AllDays },
@@ -21,13 +27,15 @@ export class ProgramDetailComponent implements OnInit {
   ];
   
   constructor(
+    private route: ActivatedRoute,
     private programService: ProgramService,
-    private route: ActivatedRoute) {
+    private zoneService: ZoneService) {
   }
   
   ngOnInit(): void {
     this.route.params.forEach((params: Params) => {
       let id = +params['id'];
+      
       this.programService
         .getProgram(id)
         .then(program => {
@@ -36,6 +44,10 @@ export class ProgramDetailComponent implements OnInit {
           this.startTime.setHours(program.startTimeHours);
           this.startTime.setMinutes(program.startTimeMinutes);
         });
+      
+      this.zoneService
+        .getZones()
+        .then(zones => this.zones = zones);
     });
   }
   
@@ -43,9 +55,25 @@ export class ProgramDetailComponent implements OnInit {
     return this.program.programScheduleType == ProgramScheduleType.DaysOfWeek
   }
   
+  showTimeSelection(): boolean {
+    return this.program.programScheduleType != ProgramScheduleType.ManualOnly
+  }
+  
   startTimeChanged(): void {
-    console.log('changed');
     this.program.startTimeHours = this.startTime.getHours();
     this.program.startTimeMinutes = this.startTime.getMinutes();
+  }
+  
+  addScheduleItem(): void {
+    if (!!this.zones && this.zones.length == 0) return;
+    let item = new ProgramScheduleItem();
+    item.zone = this.zones[0];
+    item.minutes = 20;
+    this.program.scheduleItems.push(item);
+  }
+  
+  removeScheduleItem(item: ProgramScheduleItem): void {
+    let index = this.program.scheduleItems.indexOf(item);
+    this.program.scheduleItems.splice(index, 1);
   }
 }
