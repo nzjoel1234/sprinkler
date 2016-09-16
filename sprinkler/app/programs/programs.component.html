@@ -4,28 +4,40 @@
 <h2>
   Programs
 </h2>
-<div class="row top-buffer">
-  <div class="col-xs-12">
-  <ul class="list-group">
-    <li class="list-group-item">
-      <button class="btn btn-success text-right" type="button" title="new">
-        <span class="glyphicon glyphicon-plus"></span>
-        New Program
-      </button>
-    </li>
-    <li *ngFor="let program of programs"
-        class="list-group-item">
-      <button class="btn  btn-primary text-right"
-              type="button"
-              title="edit"
-              (click)="goToDetail(program)">
-        <span class="glyphicon glyphicon-pencil"></span>&nbsp;
-      </button>
-      <button class="btn btn-danger text-right" type="button" title="delete">
-        <span class="glyphicon glyphicon-trash"></span>&nbsp;
-      </button>
-      {{program.name}} <i>(Running Time: {{program.getRunningTime()}} mins)</i>
-    </li>
-  </ul>
-  </div>
-</div>
+<table class="table">
+  <thead>
+    <tr>
+      <th class="col-xs-3 col-sm-2 col-xl-1">
+        <button class="btn btn-sm btn-success text-right"
+                type="button"
+                title="add"
+                (click)="addScheduleItem()">
+          <span class="glyphicon glyphicon-plus"></span>&nbsp;
+        </button>
+      </th>
+      <th class="">Name</th>
+      <th class="">Duration</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let program of programs">
+      <td>
+        <button class="btn  btn-primary text-right"
+                type="button"
+                title="edit"
+                (click)="goToDetail(program)">
+          <span class="glyphicon glyphicon-pencil"></span>&nbsp;
+        </button>
+        <button class="btn btn-danger text-right" type="button" title="delete">
+          <span class="glyphicon glyphicon-trash"></span>&nbsp;
+        </button>
+      </td>
+      <td>
+        {{program.name}}
+      </td>
+      <td>
+        {{program.getRunningTime()}} mins
+      </td>
+    </tr>
+  </tbody>
+</table>

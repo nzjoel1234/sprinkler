@@ -16,7 +16,7 @@
       </div>
       <div class="form-group">
         <label>Schedule</label>
-          <table class="table">
+        <table class="table">
           <thead>
             <tr>
               <th class="col-xs-1">
@@ -57,15 +57,15 @@
         </table>
       </div>
       <div class="form-group">
-        <label>Auto-Run</label>
-        <div class="radio" *ngFor="let programScheduleType of programScheduleTypes">
-          <label>
-            <input type="radio"
-                   [(ngModel)]="program.programScheduleType"
-                   [value]="programScheduleType.value">
-            {{programScheduleType.display}}
-          </label>
-        </div>
+        <label>
+            Auto-Run
+        </label>
+        <select class="form-control" [(ngModel)]="program.programScheduleType">
+          <option *ngFor="let programScheduleType of programScheduleTypes"
+                  value="{{programScheduleType.value}}">
+                  {{programScheduleType.display}}
+           </option>
+         </select>
       </div>
       <div class="form-group" *ngIf="showTimeSelection()">
         <label for="startTime">Time</label>
