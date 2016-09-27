@@ -17,6 +17,10 @@ const appRoutes: Routes = [
   {
     path: 'programs/:id',
     component: ProgramDetailComponent
+  },
+  {
+    path: 'programs/new',
+    component: ProgramDetailComponent
   }
 ];
 

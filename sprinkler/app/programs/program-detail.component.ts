@@ -33,22 +33,28 @@ export class ProgramDetailComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    
     this.route.params.forEach((params: Params) => {
-      let id = +params['id'];
-      
-      this.programService
-        .getProgram(id)
-        .then(program => {
-          this.program = program;
-          this.startTime = new Date();
-          this.startTime.setHours(program.startTimeHours);
-          this.startTime.setMinutes(program.startTimeMinutes);
-        });
-      
-      this.zoneService
-        .getZones()
-        .then(zones => this.zones = zones);
+
+      let id = Number.parseInt(params['id']);
+
+      if (id) {
+        this.programService
+          .getProgram(id)
+          .then(program => {
+            this.program = program;
+            this.startTime = new Date();
+            this.startTime.setHours(program.startTimeHours);
+            this.startTime.setMinutes(program.startTimeMinutes);
+          });
+      } else {
+        this.program = this.programService.getNewProgram();
+      }
     });
+
+    this.zoneService
+      .getZones()
+      .then(zones => this.zones = zones);
   }
   
   showDaySelection(): boolean {

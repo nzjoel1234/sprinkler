@@ -23,4 +23,10 @@ export class ProgramService {
       .getPrograms()
       .then(programs => programs.find(program => program.id === id));
   }
+
+  getNewProgram(): Program {
+    let newProgram = new Program()
+    newProgram.name = 'New Program';
+    return newProgram;
+  }
 }

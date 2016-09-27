@@ -25,6 +25,10 @@ export class ProgramsComponent implements OnInit {
   }
 
   goToDetail(program: Program): void {
-    this.router.navigate(['/programs', program.id]);
+    this.router.navigate(['programs', program.id]);
+  }
+
+  goToNew(): void {
+    this.router.navigate(['programs', 'new']);
   }
 }

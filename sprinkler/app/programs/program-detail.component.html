@@ -15,7 +15,7 @@
                [(ngModel)]="program.name">
       </div>
       <div class="form-group">
-        <label>Schedule</label>
+        <p>Duration: {{program.getRunningTime()}} mins</p>
         <table class="table">
           <thead>
             <tr>
