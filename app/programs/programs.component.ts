@@ -25,10 +25,10 @@ export class ProgramsComponent implements OnInit {
   }
 
   goToDetail(program: Program): void {
-    this.router.navigate(['programs', program.programId]);
+    this.router.navigate(['sprinkler', 'programs', program.programId]);
   }
 
   goToNew(): void {
-    this.router.navigate(['programs', 'new']);
+    this.router.navigate(['sprinkler', 'programs', 'new']);
   }
 }

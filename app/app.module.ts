@@ -1,11 +1,18 @@
-import { NgModule }       from '@angular/core';
-import { BrowserModule }  from '@angular/platform-browser';
-import { FormsModule }    from '@angular/forms';
+import { NgModule }                from '@angular/core';
+import { BrowserModule }           from '@angular/platform-browser';
+import { FormsModule }             from '@angular/forms';
+import { HttpModule, JsonpModule } from '@angular/http';
 
 import { Ng2BootstrapModule }     from 'ng2-bootstrap/ng2-bootstrap';
 
 import { AppComponent }           from './app.component';
 import { routing }                from './app.routing';
+
+import { LoggedInGuard }           from './authentication/logged-in.guard';
+import { AuthenticationService }   from './authentication/authentication.service';
+import { LoginComponent }          from './authentication/login.component';
+
+import { SprinklerComponent }      from './sprinkler.component'
 
 import { ProgramsComponent }      from './programs/programs.component';
 import { ProgramDetailComponent } from './programs/program-detail.component';
@@ -18,16 +25,22 @@ import { ZoneService }            from './zones/zone.service';
     BrowserModule,
     Ng2BootstrapModule,
     FormsModule,
-    routing
+    routing,
+    HttpModule,
+    JsonpModule
   ],
   declarations: [
     AppComponent,
+    LoginComponent,
+    SprinklerComponent,
     ProgramsComponent,
     ProgramDetailComponent
   ],
   providers: [
     ProgramService,
-    ZoneService
+    ZoneService,
+    AuthenticationService,
+    LoggedInGuard
   ],
   bootstrap: [ AppComponent ]
 })

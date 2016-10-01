@@ -1,5 +1,5 @@
 <ol class="breadcrumb">
-  <li><a routerLink="/programs">Programs</a></li>
+  <li><a routerLink="/sprinkler/programs">Programs</a></li>
   <li *ngIf="program">{{program.name}}</li>
 </ol>
 <div *ngIf="program">
@@ -24,7 +24,7 @@
                         type="button"
                         title="add"
                         (click)="addScheduleItem()">
-                  <span class="glyphicon glyphicon-plus"></span>&nbsp;
+                  &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
                 </button>
               </th>
               <th class="col-xs-7">Zone</th>
@@ -38,7 +38,7 @@
                         type="button"
                         title="remove"
                         (click)="removeScheduleItem(scheduleItem)">
-                  <span class="glyphicon glyphicon-minus"></span>&nbsp;
+                  &nbsp;<span class="glyphicon glyphicon-minus"></span>&nbsp;
                 </button>
               </td>
               <td>
