@@ -9,9 +9,12 @@ export class ProgramService {
   
   constructor() {
     let program1 = new Program()
-    program1.id = 1;
+    program1.programId = 1;
     program1.name = 'Program One';
-    this.programs = [ program1 ];
+    let program2 = new Program()
+    program2.programId = 2;
+    program2.name = 'Program Two';
+    this.programs = [ program1, program2 ];
   }
   
   getPrograms(): Promise<Program[]> {
@@ -21,7 +24,7 @@ export class ProgramService {
   getProgram(id: number): Promise<Program> {
     return this
       .getPrograms()
-      .then(programs => programs.find(program => program.id === id));
+      .then(programs => programs.find(program => program.programId === id));
   }
 
   getNewProgram(): Program {

@@ -1,5 +1,5 @@
 export class Zone {
-  id: number;
+  zoneId: number;
   name: string;
   pin: number;
 }

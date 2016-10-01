@@ -1,7 +1,7 @@
 import { Zone } from './../zones/zone';
 
 export class Program {
-  id: number = 0;
+  programId: number = 0;
   name: string;
   scheduleItems: ProgramScheduleItem[] = [];
   programScheduleType: ProgramScheduleType = ProgramScheduleType.ManualOnly;
