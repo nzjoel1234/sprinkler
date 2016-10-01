@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router }    from '@angular/router';
 
 import { AuthenticationService } from './authentication.service';
@@ -8,7 +8,7 @@ import { User } from './user';
   selector: 'my-login',
   templateUrl: 'app/authentication/login.component.html'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   
   username: string;
   password: string;
@@ -18,12 +18,6 @@ export class LoginComponent implements OnInit {
     private authenticationService: AuthenticationService) {
   }
   
-  ngOnInit(): void {
-    if (!!this.authenticationService.getCurrentUser()) {
-      this.authenticationService.logout();
-    }
-  }
-
   login(): void {
     this.authenticationService
       .login(this.username, this.password)
