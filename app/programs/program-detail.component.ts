@@ -72,10 +72,23 @@ export class ProgramDetailComponent implements OnInit {
   
   addScheduleItem(): void {
     if (!!this.zones && this.zones.length == 0) return;
-    let item = new ProgramScheduleItem();
-    item.minutes = 20;
-    item.zoneId = this.zones[0].zoneId;
-    this.program.scheduleItems.push(item);
+
+    let existingItemCount = this.program.scheduleItems.length;
+    let previousItem = this.program.scheduleItems[existingItemCount - 1];
+
+    let newItem = new ProgramScheduleItem();
+    newItem.minutes = previousItem == null ? 20 : previousItem.minutes;
+
+    let zoneId = 0;
+    for (let zoneIndex = 0; zoneIndex < this.zones.length; zoneIndex++) {
+      zoneId = this.zones[zoneIndex].zoneId;
+      if (this.program.scheduleItems
+            .filter(v => v.zoneId == zoneId)
+            .length == 0)
+        break;
+    }
+    newItem.zoneId = zoneId;
+    this.program.scheduleItems.push(newItem);
   }
   
   removeScheduleItem(item: ProgramScheduleItem): void {
