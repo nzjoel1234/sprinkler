@@ -6,6 +6,10 @@ link-checker-results.txt
 **/*npm-debug.log
 app/**/*.js
 app/**/*.js.map
+server/**/*.js
+server/**/*.js.map
+server.js
+server.js.map
 e2e/**/*.js
 e2e/**/*.js.map
 _test-output
@@ -16,8 +20,5 @@ _temp
 !systemjs.config.js
 !typings/typings.d.ts
 !wallaby.js
-/*.user
-/obj/Debug
-/bin
 
-.vs
+/dist

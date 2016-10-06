@@ -1,24 +1,28 @@
-import { Injectable } from '@angular/core';
+import { Injectable }    from '@angular/core';
+import { Headers, Http } from '@angular/http';
 
 import { Program, ProgramScheduleItem, ProgramScheduleType } from './program';
 
 @Injectable()
 export class ProgramService {
   
-  programs: Program[];
-  
-  constructor() {
-    let program1 = new Program()
-    program1.programId = 1;
-    program1.name = 'Program One';
-    let program2 = new Program()
-    program2.programId = 2;
-    program2.name = 'Program Two';
-    this.programs = [ program1, program2 ];
+  constructor(private http: Http) {
+  }
+
+  private handleError(error: any): Promise<any> {
+    console.error('An error occurred', error); // for demo purposes only
+    return Promise.reject(error.message || error);
   }
   
   getPrograms(): Promise<Program[]> {
-      return Promise.resolve(this.programs);
+    return this.http
+      .get('api/programs')
+      .toPromise()
+      .then(response => {
+        return (response.json() as any[])
+          .map(jsonProgram => Program.fromJson(jsonProgram));
+      })
+      .catch(this.handleError);
   }
   
   getProgram(id: number): Promise<Program> {

@@ -10,5 +10,10 @@
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true
   },
-  "compileOnSave": true
+  "exclude": [
+    "node_modules",
+    "e2e",
+    "typings",
+    "**/*.spec.ts"
+  ]
 }

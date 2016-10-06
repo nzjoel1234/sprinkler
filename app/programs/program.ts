@@ -20,6 +20,26 @@ export class Program {
       .map(item => item.minutes)
       .reduce((prev, curr) => prev + curr, 0);
   }
+
+  public static fromJson(json: any): Program {
+    let result = new Program();
+
+    result.programId = json.programId;
+    result.name = json.name;
+    result.scheduleItems = json.scheduleItems;
+    result.programScheduleType = json.programScheduleType;
+    result.startTimeHours = json.startTimeHours;
+    result.startTimeMinutes = json.startTimeMinutes;
+    result.monday = json.monday;
+    result.tuesday = json.tuesday;
+    result.wednesday = json.wednesday;
+    result.thursday = json.thursday;
+    result.friday = json.friday;
+    result.saturday = json.saturday;
+    result.sunday = json.sunday;
+
+    return result;
+  }
 }
 
 export class ProgramScheduleItem {
