@@ -4,9 +4,14 @@ const typescript = require('gulp-typescript');
 const sourcemaps = require('gulp-sourcemaps');
 const merge = require('merge-stream');
 const rename = require('gulp-rename');
-const nodemon = require('gulp-nodemon')
+const nodemon = require('gulp-nodemon');
 
 const tscConfig = require('./tsconfig.json');
+
+function addBasePath(basePath, path) {
+  path.dirname = basePath + "/" + path.dirname;
+  return path;  
+}
 
 // clean the contents of the distribution directory
 gulp.task('clean', function () {
@@ -16,23 +21,30 @@ gulp.task('clean', function () {
 // TypeScript compile server code
 gulp.task('compile:server', ['clean'], function () {
 
-  var serverTs = gulp.src(['server.ts']);
+  del.sync(['server/**/*.js', 'server/**/*.js.map']);
 
-  var serverFiles = gulp.src(['server/**/*.ts'])
-    .pipe(rename(function (path) {
-      path.dirname = "server/" + path.dirname;
-      return path;
-    }));
-
-  return merge(serverTs, serverFiles)
+  var compilServerTs = gulp
+    .src(['server.ts'])
     .pipe(sourcemaps.init())          // <--- sourcemaps
     .pipe(typescript(tscConfig.compilerOptions))
     .pipe(sourcemaps.write('.'))      // <--- sourcemaps
     .pipe(gulp.dest('dist'));
+
+  var compilServerFiles = gulp
+    .src(['server/**/*.ts'])
+    .pipe(sourcemaps.init())          // <--- sourcemaps
+    .pipe(typescript(tscConfig.compilerOptions))
+    .pipe(sourcemaps.write('.'))      // <--- sourcemaps
+    .pipe(gulp.dest('dist/server'));
+
+  return merge(compilServerTs, compilServerFiles);
 });
 
 // TypeScript compile
 gulp.task('compile:app', ['clean'], function () {
+
+  del.sync(['app/**/*.js', 'app/**/*.js.map']);
+
   return gulp
     .src('app/**/*.ts')
     .pipe(sourcemaps.init())          // <--- sourcemaps
@@ -40,11 +52,6 @@ gulp.task('compile:app', ['clean'], function () {
     .pipe(sourcemaps.write('.'))      // <--- sourcemaps
     .pipe(gulp.dest('dist/app'));
 });
-
-function addBasePath(basePath, path) {
-  path.dirname = basePath + "/" + path.dirname;
-  return path;  
-}
 
 // copy dependencies
 gulp.task('copy:libs', ['clean'], function() {
@@ -95,16 +102,22 @@ gulp.task('copy:libs', ['clean'], function() {
 
 // copy static assets - i.e. non TypeScript compiled source
 gulp.task('copy:assets', ['clean'], function() {
-  return gulp.src(['app/**/*', 'systemjs.config.js', 'index.html', 'styles.css', '!app/**/*.ts'], { base : './' })
+  return gulp.src([
+    'app/**/*',
+    'systemjs.config.js',
+    'index.html',
+    'styles.css',
+    'favicon.ico',
+    '!app/**/*.ts'], { base : './' })
     .pipe(gulp.dest('dist'))
 });
 
 gulp.task('build', ['compile:app', 'compile:server', 'copy:libs', 'copy:assets']);
 
 gulp.task('run', ['build'], function() {
-  nodemon({
+  return nodemon({
     script: './dist/server.js',
-    watch: ['app', 'server'],
+    watch: ['app/**/*.ts', 'server/**/*.ts', 'server.ts'],
     tasks: ['build']
   });
 });

@@ -26,9 +26,13 @@ export class ProgramService {
   }
   
   getProgram(id: number): Promise<Program> {
-    return this
-      .getPrograms()
-      .then(programs => programs.find(program => program.programId === id));
+    return this.http
+      .get('api/programs/' + id)
+      .toPromise()
+      .then(response => {
+        return Program.fromJson(response.json());
+      })
+      .catch(this.handleError);
   }
 
   getNewProgram(): Program {
