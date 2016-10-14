@@ -21,29 +21,18 @@ gulp.task('clean', function () {
 // TypeScript compile server code
 gulp.task('compile:server', ['clean'], function () {
 
-  del.sync(['server/**/*.js', 'server/**/*.js.map']);
-
-  var compilServerTs = gulp
-    .src(['server.ts'])
+  var compileServerFiles = gulp
+    .src(['server/**/*.ts', 'server.ts'], { base:'./' })
     .pipe(sourcemaps.init())          // <--- sourcemaps
     .pipe(typescript(tscConfig.compilerOptions))
     .pipe(sourcemaps.write('.'))      // <--- sourcemaps
     .pipe(gulp.dest('dist'));
 
-  var compilServerFiles = gulp
-    .src(['server/**/*.ts'])
-    .pipe(sourcemaps.init())          // <--- sourcemaps
-    .pipe(typescript(tscConfig.compilerOptions))
-    .pipe(sourcemaps.write('.'))      // <--- sourcemaps
-    .pipe(gulp.dest('dist/server'));
-
-  return merge(compilServerTs, compilServerFiles);
+  return compileServerFiles;
 });
 
 // TypeScript compile
 gulp.task('compile:app', ['clean'], function () {
-
-  del.sync(['app/**/*.js', 'app/**/*.js.map']);
 
   return gulp
     .src('app/**/*.ts')
@@ -103,16 +92,28 @@ gulp.task('copy:libs', ['clean'], function() {
 // copy static assets - i.e. non TypeScript compiled source
 gulp.task('copy:assets', ['clean'], function() {
   return gulp.src([
-    'app/**/*',
+    'app/**/*.html',
+    'app/**/*.css',
     'systemjs.config.js',
     'index.html',
     'styles.css',
     'favicon.ico',
-    '!app/**/*.ts'], { base : './' })
+    'database/**/*.sql'],
+    { base : './' })
     .pipe(gulp.dest('dist'))
 });
 
 gulp.task('build', ['compile:app', 'compile:server', 'copy:libs', 'copy:assets']);
+
+gulp.task('buildserver', ['compile:server', 'copy:libs']);
+
+gulp.task('runserver', ['buildserver'], function() {
+  return nodemon({
+    script: './dist/server.js',
+    watch: ['server/**/*.ts', 'server.ts'],
+    tasks: ['buildserver']
+  });
+});
 
 gulp.task('run', ['build'], function() {
   return nodemon({

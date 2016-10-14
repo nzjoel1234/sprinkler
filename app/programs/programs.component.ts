@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router }            from '@angular/router';
 
-import { Program }        from './program';
+import { ProgramSummary }        from './program';
 import { ProgramService } from './program.service';
 
 @Component({
@@ -9,8 +9,8 @@ import { ProgramService } from './program.service';
   templateUrl: 'app/programs/programs.component.html'
 })
 export class ProgramsComponent implements OnInit {
-  programs: Program[];
-  selectedProgram: Program;
+  programs: ProgramSummary[];
+  selectedProgram: ProgramSummary;
 
   constructor(
     private router: Router,
@@ -24,11 +24,17 @@ export class ProgramsComponent implements OnInit {
     this.getPrograms();
   }
 
-  goToDetail(program: Program): void {
+  goToDetail(program: ProgramSummary): void {
     this.router.navigate(['sprinkler', 'programs', program.programId]);
   }
 
   goToNew(): void {
     this.router.navigate(['sprinkler', 'programs', 'new']);
+  }
+
+  deleteProgram(program: ProgramSummary): void {
+    this.programService.deleteProgram(program.programId)
+      .then(() => this.getPrograms())
+      .catch(() => alert('failed to delete program'));
   }
 }

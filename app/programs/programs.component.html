@@ -28,7 +28,10 @@
                 (click)="goToDetail(program)">
           &nbsp;<span class="glyphicon glyphicon-pencil"></span>&nbsp;
         </button>
-        <button class="btn btn-danger text-right" type="button" title="delete">
+        <button class="btn btn-danger text-right"
+                type="button"
+                title="delete"
+                (click)="deleteProgram(program)">
           &nbsp;<span class="glyphicon glyphicon-trash"></span>&nbsp;
         </button>
       </td>
@@ -36,7 +39,7 @@
         {{program.name}}
       </td>
       <td>
-        {{program.getRunningTime()}} mins
+        {{program.totalMinutes}} mins
       </td>
     </tr>
   </tbody>

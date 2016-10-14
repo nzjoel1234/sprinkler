@@ -2,44 +2,91 @@ import express = require("express");
 import ProgramModel = require("./program.model");
 
 function getPrograms(req: express.Request, res: express.Response) {
-  let program1 = new ProgramModel.Program()
-  program1.programId = 1;
-  program1.name = 'Program One';
 
-  let program2 = new ProgramModel.Program()
-  program2.programId = 2;
-  program2.name = 'Program Two';
+  res.setHeader('Content-Type', 'application/json');
 
-  let program3 = new ProgramModel.Program()
-  program3.programId = 3;
-  program3.name = 'Program Three';
-  
-  res.send([ program1, program2, program3 ]);
+  ProgramModel
+    .getPrograms()
+    .then(programs => res.send(JSON.stringify(programs)))
+    .catch(error => {
+      console.log('failed to get programs: ' + JSON.stringify(error));
+      return res.status(500).send(JSON.stringify(error));
+    });
 }
 
-function getProgram(req: express.Request, res: express.Response) {
+function getProgramDetail(req: express.Request, res: express.Response) {
 
-  let program = new ProgramModel.Program()
+  res.setHeader('Content-Type', 'application/json');
 
-  program.programId = req.params.programId;
-  program.name = 'Program ' + req.params.programId;
+  ProgramModel
+    .getProgramDetail(parseInt(req.params.programId))
+    .then(program => res.send(JSON.stringify(program)))
+    .catch(error => {
+      if (error instanceof ProgramModel.NotFoundError)
+        return res.status(404).send(JSON.stringify({ detail: 'Not Found' }));
+      console.log('failed to get program: ' + JSON.stringify(error));
+      return res.status(500).send(JSON.stringify(error));
+    });
+}
 
-  res.send(program);
+function deleteProgram(req: express.Request, res: express.Response) {
+  
+  res.setHeader('Content-Type', 'application/json');
+
+  ProgramModel
+    .deleteProgram(parseInt(req.params.programId))
+    .then(() => res.status(204).send())
+    .catch(error => {
+      console.log('failed to delete program: ' + JSON.stringify(error));
+      return res.status(500).send(JSON.stringify(error));
+    });
 }
 
 function updateProgram(req: express.Request, res: express.Response) {
-  let program = new ProgramModel.Program()
+  
+  res.setHeader('Content-Type', 'application/json');
+  
+  let program = req.body as ProgramModel.Program;
+  if (!program) {
+    return res.status(400).send({ error: 'Failed to parse request body' });
+  }
+  program.programId = parseInt(req.params.programId);
 
-  program.programId = req.params.programId;
-  program.name = 'Program ' + req.params.programId;
+  ProgramModel
+    .update(program)
+    .then(() => res.status(204).send())
+    .catch(error => {
+      if (error instanceof ProgramModel.NotFoundError)
+        return res.status(404).send(JSON.stringify({ detail: 'Not Found' }));
+      console.log('failed to update program: ' + JSON.stringify(error));
+      res.status(500).send(JSON.stringify(error));
+    });
+}
 
-  res.send(program);
+function createProgram(req: express.Request, res: express.Response) {
+
+  res.setHeader('Content-Type', 'application/json');
+
+  let program = req.body as ProgramModel.Program;
+  if (!program) {
+    return res.status(400).send({ error: 'Failed to parse request body' });
+  }
+
+  ProgramModel
+    .create(program)
+    .then(programId => res.status(201).send(JSON.stringify(programId)))
+    .catch(error => {
+      console.log('failed to create program: ' + JSON.stringify(error));
+      res.status(500).send(JSON.stringify(error));
+    });
 }
 
 let programsRouter = express.Router();
 
 programsRouter.get('', getPrograms);
-programsRouter.get('/:programId', getProgram);
+programsRouter.post('', createProgram);
+programsRouter.get('/:programId', getProgramDetail);
 programsRouter.post('/:programId', updateProgram);
+programsRouter.delete('/:programId', deleteProgram);
 
 export = programsRouter;

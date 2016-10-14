@@ -1,7 +1,7 @@
 import { Injectable }    from '@angular/core';
-import { Headers, Http } from '@angular/http';
+import { Http, Headers, RequestOptions } from '@angular/http';
 
-import { Program, ProgramScheduleItem, ProgramScheduleType } from './program';
+import { ProgramSummary, Program, ProgramSchedule, ProgramScheduleType, ProgramStage } from './program';
 
 @Injectable()
 export class ProgramService {
@@ -14,13 +14,12 @@ export class ProgramService {
     return Promise.reject(error.message || error);
   }
   
-  getPrograms(): Promise<Program[]> {
+  getPrograms(): Promise<ProgramSummary[]> {
     return this.http
       .get('api/programs')
       .toPromise()
       .then(response => {
-        return (response.json() as any[])
-          .map(jsonProgram => Program.fromJson(jsonProgram));
+        return response.json() as ProgramSummary[];
       })
       .catch(this.handleError);
   }
@@ -30,14 +29,32 @@ export class ProgramService {
       .get('api/programs/' + id)
       .toPromise()
       .then(response => {
-        return Program.fromJson(response.json());
+        return response.json() as Program;
       })
       .catch(this.handleError);
   }
+  
+  deleteProgram(id: number): Promise<any> {
+    return this.http
+      .delete('api/programs/' + id)
+      .toPromise()
+      .catch(this.handleError);
+  }
+  
+  // creates or updates program
+  saveProgram(program: Program): Promise<number> {
 
-  getNewProgram(): Program {
-    let newProgram = new Program()
-    newProgram.name = 'New Program';
-    return newProgram;
+    let url = program.programId > 0 ? `api/programs/${program.programId}` : 'api/programs'
+    let body = JSON.stringify(program);
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http
+      .post(url, body, options)
+      .toPromise()
+      .then(response => {
+        return response.json() as number;
+      })
+      .catch(this.handleError);
   }
 }

@@ -1,11 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { ProgramService } from './program.service';
-import { Program, ProgramScheduleItem, ProgramScheduleType } from './program';
+import { Program, ProgramSchedule, ProgramStage, ProgramScheduleType } from './program';
 
 import { ZoneService } from './../zones/zone.service';
 import { Zone } from './../zones/zone';
+
+class ProgramScheduleViewModel {
+
+  startTime: Date;
+
+  public constructor(
+    public model: ProgramSchedule) {
+
+    this.startTime = new Date();
+    this.startTime.setHours(model.startTimeHours);
+    this.startTime.setMinutes(model.startTimeMinutes);
+  }
+
+  startTimeChanged(): void {
+    this.model.startTimeHours = this.startTime.getHours();
+    this.model.startTimeMinutes = this.startTime.getMinutes();
+  }
+}
 
 @Component({
   selector: 'my-program-detail',
@@ -14,19 +32,19 @@ import { Zone } from './../zones/zone';
 export class ProgramDetailComponent implements OnInit {
   
   program: Program;
-  startTime: Date;
+  orderedStages: ProgramStage[];
+  schedules: ProgramScheduleViewModel[];
   
   zones: Zone[];
   
   programScheduleTypes = [
-    { display: 'Manual Only', value: ProgramScheduleType.ManualOnly },
     { display: 'All Days', value: ProgramScheduleType.AllDays },
-    { display: 'Days Of Week', value: ProgramScheduleType.DaysOfWeek },
     { display: 'Odd Days', value: ProgramScheduleType.OddDays },
     { display: 'Even Days', value: ProgramScheduleType.EvenDays }
   ];
   
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private programService: ProgramService,
     private zoneService: ZoneService) {
@@ -36,63 +54,76 @@ export class ProgramDetailComponent implements OnInit {
     
     this.route.params.forEach((params: Params) => {
 
-      let id = Number.parseInt(params['id']);
+      let programId = Number.parseInt(params['id']);
 
-      if (id) {
-        this.programService
-          .getProgram(id)
-          .then(program => {
-            this.program = program;
-            this.startTime = new Date();
-            this.startTime.setHours(program.startTimeHours);
-            this.startTime.setMinutes(program.startTimeMinutes);
-          });
-      } else {
-        this.program = this.programService.getNewProgram();
-      }
+      this.zoneService.getZones()
+        .then(zones => this.zones = zones)
+        .then(() => {
+          if (programId) {
+            return this.programService
+              .getProgram(programId)
+              .then(program => {
+                this.program = program;
+              });
+          } else {
+            let newProgram = new Program();
+            newProgram.programId = 0;
+            newProgram.name = "New Program";
+            this.program = newProgram;
+          }
+        })
+        .then(() => {
+          this.schedules = this.program.schedules
+            .map(schedule => new ProgramScheduleViewModel(schedule));
+        })
+        .then(() => {
+          this.orderedStages = this.program.stages
+            .sort((a, b) => b.orderId - a.orderId);
+        });
     });
+  }
 
-    this.zoneService
-      .getZones()
-      .then(zones => this.zones = zones);
+  getRunningTime(): number {
+    return this.program.stages
+      .map(stage => stage.minutes)
+      .reduce((prev, curr) => prev + curr, 0);
   }
   
-  showDaySelection(): boolean {
-    return this.program.programScheduleType == ProgramScheduleType.DaysOfWeek
-  }
-  
-  showTimeSelection(): boolean {
-    return this.program.programScheduleType != ProgramScheduleType.ManualOnly
-  }
-  
-  startTimeChanged(): void {
-    this.program.startTimeHours = this.startTime.getHours();
-    this.program.startTimeMinutes = this.startTime.getMinutes();
-  }
-  
-  addScheduleItem(): void {
+  addStage(): void {
     if (!!this.zones && this.zones.length == 0) return;
 
-    let existingItemCount = this.program.scheduleItems.length;
-    let previousItem = this.program.scheduleItems[existingItemCount - 1];
+    let existingItemCount = this.program.stages.length;
+    let previousItem = this.program.stages[existingItemCount - 1];
 
-    let newItem = new ProgramScheduleItem();
+    let newItem = new ProgramStage();
     newItem.minutes = previousItem == null ? 20 : previousItem.minutes;
 
     let zoneId = 0;
     for (let zoneIndex = 0; zoneIndex < this.zones.length; zoneIndex++) {
       zoneId = this.zones[zoneIndex].zoneId;
-      if (this.program.scheduleItems
+      if (this.program.stages
             .filter(v => v.zoneId == zoneId)
             .length == 0)
         break;
     }
     newItem.zoneId = zoneId;
-    this.program.scheduleItems.push(newItem);
+    this.program.stages.push(newItem);
   }
   
-  removeScheduleItem(item: ProgramScheduleItem): void {
-    let index = this.program.scheduleItems.indexOf(item);
-    this.program.scheduleItems.splice(index, 1);
+  removeStage(item: ProgramStage): void {
+    let index = this.program.stages.indexOf(item);
+    this.program.stages.splice(index, 1);
+  }
+
+  save(): void {
+    this.program.schedules = this.schedules.map(s => s.model);
+    this.program.stages = this.orderedStages.map((stage, index) => {
+      stage.orderId = index;
+      return stage;
+    })
+    this.programService
+      .saveProgram(this.program)
+      .then(() => this.router.navigate(['sprinkler', 'programs']))
+      .catch(error => alert('failed to save'));
   }
 }
