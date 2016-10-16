@@ -1,5 +1,4 @@
 import sqlite3 = require('sqlite3');
-import tp = require('typed-promisify');
 import fs = require('fs');
 import rxjs = require ('rxjs');
 
@@ -45,12 +44,12 @@ function executeUpgradeScriptIfRequired(db: sqlite3.Database, scriptPath: string
 
   console.log(`Upgrading DB from ${currentVersion} to ${destinationVersion}`);
 
-  return tp.promisify(fs.readFile)(scriptsDir + scriptPath)
-    .then(scriptContent => new Promise((resolve, reject) => {
-      db.exec(scriptContent.toString(), error => {
-        if (error) return reject(error);
-        return resolve();
-      });
+  let scriptContent = fs.readFileSync(scriptsDir + scriptPath).toString();
+
+  return new Promise((resolve, reject) => 
+    db.exec(scriptContent.toString(), error => {
+      if (error) return reject(error);
+      return resolve();
     }));
 }
 

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router }            from '@angular/router';
 
 import { ProgramSummary }        from './program';
 import { ProgramService } from './program.service';
@@ -13,7 +12,6 @@ export class ProgramsComponent implements OnInit {
   selectedProgram: ProgramSummary;
 
   constructor(
-    private router: Router,
     private programService: ProgramService) { }
 
   getPrograms(): void {
@@ -22,14 +20,6 @@ export class ProgramsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getPrograms();
-  }
-
-  goToDetail(program: ProgramSummary): void {
-    this.router.navigate(['sprinkler', 'programs', program.programId]);
-  }
-
-  goToNew(): void {
-    this.router.navigate(['sprinkler', 'programs', 'new']);
   }
 
   deleteProgram(program: ProgramSummary): void {

@@ -5,7 +5,9 @@ const sourcemaps = require('gulp-sourcemaps');
 const merge = require('merge-stream');
 const rename = require('gulp-rename');
 const nodemon = require('gulp-nodemon');
+const webpack = require('webpack-stream');
 
+const webpackConfig = require('./webpack.config.js');
 const tscConfig = require('./tsconfig.json');
 
 function addBasePath(basePath, path) {
@@ -18,7 +20,6 @@ gulp.task('clean', function () {
   return del('dist/**/*');
 });
 
-// TypeScript compile server code
 gulp.task('compile:server', ['clean'], function () {
 
   var compileServerFiles = gulp
@@ -31,18 +32,15 @@ gulp.task('compile:server', ['clean'], function () {
   return compileServerFiles;
 });
 
-// TypeScript compile
 gulp.task('compile:app', ['clean'], function () {
 
   return gulp
-    .src('app/**/*.ts')
-    .pipe(sourcemaps.init())          // <--- sourcemaps
-    .pipe(typescript(tscConfig.compilerOptions))
-    .pipe(sourcemaps.write('.'))      // <--- sourcemaps
-    .pipe(gulp.dest('dist/app'));
+    .src('app/main.ts')
+    .pipe(webpack(webpackConfig))
+    .pipe(gulp.dest('dist'));
+    
 });
 
-// copy dependencies
 gulp.task('copy:libs', ['clean'], function() {
   var angularLibs = gulp.src([
     'node_modules/@angular/**/*.js',

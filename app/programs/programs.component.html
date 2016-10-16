@@ -8,12 +8,12 @@
   <thead>
     <tr>
       <th class="col-xs-3 col-sm-2 col-xl-1">
-        <button class="btn btn-success text-right"
+        <a class="btn btn-success text-right"
                 type="button"
                 title="add"
-                (click)="goToNew()">
+                routerLink="/sprinkler/programs/new">
           &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
-        </button>
+        </a>
       </th>
       <th class="">Name</th>
       <th class="">Duration</th>
@@ -22,12 +22,12 @@
   <tbody>
     <tr *ngFor="let program of programs">
       <td>
-        <button class="btn btn-primary text-right"
+        <a class="btn btn-primary text-right"
                 type="button"
                 title="edit"
-                (click)="goToDetail(program)">
+                routerLink="/sprinkler/programs/{{program.programId}}">
           &nbsp;<span class="glyphicon glyphicon-pencil"></span>&nbsp;
-        </button>
+        </a>
         <button class="btn btn-danger text-right"
                 type="button"
                 title="delete"

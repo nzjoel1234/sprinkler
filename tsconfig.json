@@ -9,7 +9,7 @@
     "removeComments": false,
     "noImplicitAny": true,
     "suppressImplicitAnyIndexErrors": true,
-    "compileOnSave": true
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules",

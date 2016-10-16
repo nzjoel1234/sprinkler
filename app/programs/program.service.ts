@@ -42,7 +42,7 @@ export class ProgramService {
   }
   
   // creates or updates program
-  saveProgram(program: Program): Promise<number> {
+  saveProgram(program: Program): Promise<any> {
 
     let url = program.programId > 0 ? `api/programs/${program.programId}` : 'api/programs'
     let body = JSON.stringify(program);
@@ -52,9 +52,6 @@ export class ProgramService {
     return this.http
       .post(url, body, options)
       .toPromise()
-      .then(response => {
-        return response.json() as number;
-      })
       .catch(this.handleError);
   }
 }
