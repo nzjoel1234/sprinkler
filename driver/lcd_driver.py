@@ -34,11 +34,13 @@ class displayThreadWrapper (threading.Thread):
           time.sleep(50)
 
     def setText(self, text):
-        print "Text changing to: " + text
+        if self.text == text:
+            return
         self.lock.acquire()
         self.textChanged = True
         self.text = text
         self.lock.release()
+        print "Text changing to: " + text
 
     def stop(self):
         self.stop = True
@@ -68,8 +70,9 @@ try:
     displayThread.start()
     inputThread.start()
 except (KeyboardInterrupt, SystemExit):
-    displayThread.stop()
-    displayThread.join()
+    print 'Stopping threads...'
     inputThread.stop()
     inputThread.join()
+    displayThread.stop()
+    displayThread.join()
     sys.exit()
