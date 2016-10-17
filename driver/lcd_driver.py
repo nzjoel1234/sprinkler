@@ -31,7 +31,7 @@ class displayThreadWrapper (threading.Thread):
             self.lcd.message(self.text)
             self.textChanged = False
             self.lock.release()
-          time.sleep(50)
+          time.sleep(0.05)
 
     def setText(self, text):
         if self.text == text:
