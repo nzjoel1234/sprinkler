@@ -16,7 +16,7 @@ class displayThreadWrapper (threading.Thread):
     def run(self):
         print "Starting " + self.name
         self.lock.acquire()
-        if (self.textChanged)
+        if self.textChanged:
           self.lcd.clear()
           self.lcd.message(self.text)
           self.textChanged = False
