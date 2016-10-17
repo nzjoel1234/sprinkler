@@ -40,8 +40,8 @@ class displayThreadWrapper (threading.Thread):
         self.text = text
         self.lock.release()
 
-    def stop():
-      self.stop = True
+    def stop(self):
+        self.stop = True
 
 class inputThreadWrapper (threading.Thread):
     def __init__(self, lcd, displayThread):
@@ -58,16 +58,18 @@ class inputThreadWrapper (threading.Thread):
                 if lcd.is_pressed(button[0]):
                     self.displayThread.setText(button[1])
 
-    def stop():
-      self.stop = True
+    def stop(self):
+        self.stop = True
 
 displayThread = displayThreadWrapper(lcd)
 inputThread = inputThreadWrapper(lcd, displayThread)
 
 try:
-    displayThread.stop()
-    inputThread.stop()
+    displayThread.start()
+    inputThread.start()
 except (KeyboardInterrupt, SystemExit):
     displayThread.stop()
+    displayThread.join()
     inputThread.stop()
+    inputThread.join()
     sys.exit()
