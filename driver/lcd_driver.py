@@ -21,16 +21,17 @@ class displayThreadWrapper (threading.Thread):
         self.lock = threading.Lock()
         self.text = 'Press a key...'
         self.textChanged = True
+        self.stop = False
 
     def run(self):
-        while True:
-          self.lock.acquire()
+        while not self.stop:
           if self.textChanged:
+            self.lock.acquire()
             self.lcd.clear()
             self.lcd.message(self.text)
             self.textChanged = False
+            self.lock.release()
           time.sleep(50)
-          self.lock.release()
 
     def setText(self, text):
         print "Text changing to: " + text
@@ -39,23 +40,34 @@ class displayThreadWrapper (threading.Thread):
         self.text = text
         self.lock.release()
 
+    def stop():
+      self.stop = True
+
 class inputThreadWrapper (threading.Thread):
     def __init__(self, lcd, displayThread):
         threading.Thread.__init__(self)
         self.lcd = lcd
         self.displayThread = displayThread
-        self.lock = threading.Lock()
         self.text = 'Press a key...'
         self.textChanged = True
+        self.stop = False
 
     def run(self):
-        while True:
+        while not self.stop:
             for button in buttons:
                 if lcd.is_pressed(button[0]):
                     self.displayThread.setText(button[1])
 
+    def stop():
+      self.stop = True
+
 displayThread = displayThreadWrapper(lcd)
 inputThread = inputThreadWrapper(lcd, displayThread)
 
-displayThread.start()
-inputThread.start()
+try:
+    displayThread.stop()
+    inputThread.stop()
+except (KeyboardInterrupt, SystemExit):
+    displayThread.stop()
+    inputThread.stop()
+    sys.exit()
