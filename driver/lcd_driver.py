@@ -1,25 +1,36 @@
 #!/usr/bin/python
 # Example using a character LCD plate.
 import time
+import threading
 
 import Adafruit_CharLCD as LCD
 
+class displayThreadWrapper (threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.lock = threading.Lock()
+        self.lcd = LCD.Adafruit_CharLCDPlate()
+        self.text = 'Press a key...'
+        self.textChanged = True
 
-# Initialize the LCD using the pins
-lcd = LCD.Adafruit_CharLCDPlate()
+    def run(self):
+        print "Starting " + self.name
+        self.lock.acquire()
+        if (self.textChanged)
+          self.lcd.clear()
+          self.lcd.message(self.text)
+          self.textChanged = False
+        self.lock.release()
 
-# create some custom characters
-lcd.create_char(1, [2, 3, 2, 2, 14, 30, 12, 0])
-lcd.create_char(2, [0, 1, 3, 22, 28, 8, 0, 0])
-lcd.create_char(3, [0, 14, 21, 23, 17, 14, 0, 0])
-lcd.create_char(4, [31, 17, 10, 4, 10, 17, 31, 0])
-lcd.create_char(5, [8, 12, 10, 9, 10, 12, 8, 0])
-lcd.create_char(6, [2, 6, 10, 18, 10, 6, 2, 0])
-lcd.create_char(7, [31, 17, 21, 21, 21, 21, 17, 31])
+    def setText(self, text):
+        print "Text changing to: " + text
+        self.lock.acquire()
+        self.textChanged = True
+        self.text = text
+        self.lock.release()
 
-# Show button state.
-lcd.clear()
-lcd.message('A long string which is far longer than the display can handle... what will happen?')
+displayThread = displayThreadWrapper()
+displayThread.start()
 
 # Make list of button value, text, and backlight color.
 buttons = ( (LCD.SELECT, 'Select', (1,1,1)),
@@ -34,6 +45,5 @@ while True:
     for button in buttons:
         if lcd.is_pressed(button[0]):
             # Button is pressed, change the message and backlight.
-            lcd.clear()
-            lcd.message(button[1])
+            displayThread(button[1])
             lcd.set_color(button[2][0], button[2][1], button[2][2])
