@@ -15,78 +15,53 @@ work on a LCD of any size.
 See lcdScrollTest.py for simple example usage.
 """
 
-class Scroller(object):
-    """
-    Object designed to auto-scroll text on a LCD screen.  Every time the scroll()
-    method is called to, it will scroll the text from right to left by one character
-    on any line that is greater than the provided with.
-    If the lines ever need to be reset \ updated, call to the setLines() method.
-    """
-    def __init__(self, lines=[], space = " :: ", width=16, height=2):
-        """
-        Instance a LCD scroller object.
+import threading
 
-        Parameters:
-        lines : list / string : Default empty list : If a list is passed in, each 
-            entry in the list is a  string that should be displayed on the LCD, 
-            one line after the next.  If a string, it will be split by any embedded 
-            linefeed \n characers into a list of multiple lines . 
-            Ultimately, the number of entries in this list must be equal to or 
-            less than the height argument.
-        space : string : Default " :: " : If a given line is longer than the width
-            argument, this string will be added to the end to help designate the
-            end of the line has been hit during the scroll.
-        width : int : Default 16 : The width of the LCD display, number of columns.
-        height : int : Default 2 : the height of the LCD, number of rows.
-        """
+class Scroller(object):
+    def __init__(self, lines=[], space = " :: ", delay = 3, width=16, height=2):
         self.width = width
         self.height = height
         self.space = space
-        self.setLines(lines)
+        self._threadLock = threading.RLock()
+        self._currentIndices = []
+        self._delay = delay
+        self._delayRemaining = 0
+        self._lines = []
+        self.set_lines(lines)
 
-    def setLines(self, lines):
-        """
-        Set (for the first time) or reset (at any time) the lines to display.
-        Sets self.lines
-
-        Parameters:
-        lines : list : Each entry in the list is a string
-            that should be displayed on the LCD, one line after the next.  The 
-            number of entries in this list must be equal to or less than the 
-            height argument.
-        """
-        # Just in case a string is passed in, turn it into a list, and split
-        # by any linefeed chars:
+    def set_lines(self, lines, restart_scroll = True):
+        
         if isinstance(lines, basestring):   
             lines = lines.split("\n")
         elif not isinstance(lines, list):
             raise Exception("Argument passed to lines parameter must be list, instead got: %s"%type(lines))
         if len(lines) > self.height:
-            raise Exception("Have more lines to display (%s) than you have lcd rows (%s)"%(len(lines), height))            
-        self.lines = lines
-        # If the line is over the width, add in the extra spaces to help separate
-        # the scroll:
-        for i,ln in enumerate(self.lines[:]):
-            if len(ln) > self.width:
-                self.lines[i] = "%s%s"%(ln,self.space)
+            raise Exception("Have more lines to display (%s) than you have lcd rows (%s)"%(len(lines), height))
+    
+        with self._threadLock:
+            self._lines = lines
+            if restart_scroll:
+                self.restart_scroll()
 
-    def getLines(self):
-        truncated = [ln[:self.width] for ln in self.lines]
-        return "\n".join(truncated)
+    def get_lines(self):
+        truncated = []
+        with self._threadLock:
+            for i,line in enumerate(self._lines):
+                self._currentIndices[i] = self._currentIndices[i] % len(line + self.space)
+                currentIndex = self._currentIndices[i]
+                truncated.append(("%s%s%s" % (line, self.space, line))[currentIndex:currentIndex + self.width])
+            return "\n".join(truncated)
+
+    def restart_scroll(self):
+        with self._threadLock:
+            self._delayRemaining = self._delay
+            self._currentIndices = [0] * self.height
 
     def scroll(self):
-        """
-        Scroll the text by one character from right to left each time this is
-        called to.
-
-        Return : string : The message to display to the LCD.  Each line is separated
-            by the \n (linefeed) character that the Adafruit LCD expects.  Each line
-            will also be clipped to self.width, so as to not confuse the LCD when
-            later drawn.
-        """
-        for i,ln in enumerate(self.lines[:]):
-            if len(ln) > 16:
-                shift = "%s%s"%(ln[1:], ln[0])
-                self.lines[i] = shift
-        truncated = [ln[:self.width] for ln in self.lines]
-        return "\n".join(truncated)
+        with self._threadLock:
+            if (self._delayRemaining > 0):
+                self._delayRemaining = self._delayRemaining - 1
+                return
+            for i,line in enumerate(self._lines[:]):
+                if len(line) > 16:
+                    self._currentIndices[i] = self._currentIndices[i] + 1

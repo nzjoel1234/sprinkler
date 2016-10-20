@@ -9,16 +9,17 @@ DOWN                    = 274
 UP                      = 273
 LEFT                    = 276
 
+FONT_HEIGHT = 20
+FONT_WIDTH = 12
+
 class Adafruit_CharLCDPlate:
 
-    def __init__(self):
+    def __init__(self, width = 16, height = 2):
         pygame.init()
-        width = 16
-        height = 2
-        self.size = [12*width, 20*height]
-        self.screen = pygame.display.set_mode(self.size)
+        self._width = width
+        self.screen = pygame.display.set_mode([FONT_WIDTH * width, FONT_HEIGHT * height])
         pygame.display.set_caption("Mock LCD")
-        self.font = pygame.font.SysFont("monospace", 20)
+        self.font = pygame.font.SysFont("monospace", FONT_HEIGHT)
         self._keyStates = {
             SELECT: False,
             RIGHT: False,
@@ -26,19 +27,31 @@ class Adafruit_CharLCDPlate:
             UP: False,
             LEFT: False
         }
+        self._lines = ['', '']
+        self._display_on = False
+
+    def enable_display(self, enable):
+        self._display_on = enable
+        self._update_screen()
 
     def clear(self):
         self.screen.fill((0,0,0))
 
-    def message(self, text):
-        lines = text.splitlines()
-        i=0
+    def _update_screen(self):
         self.clear()
-        while i < len(lines):
-            line = self.font.render(lines[i], 2, (255,255,0))
-            self.screen.blit(line, (0, 20*i))
+        i=0
+        lcd_back_color = (0,0,100) if self._display_on else (0,0,0)
+        lcd_text_color = (255,255,0) if self._display_on else (100,100,0)
+        while i < len(self._lines):
+            line = self._lines[i].ljust(self._width, ' ')
+            rendered_line = self.font.render(line, 2, lcd_text_color, lcd_back_color)
+            self.screen.blit(rendered_line, (0, FONT_HEIGHT * i))
             i+=1
         pygame.display.flip()
+
+    def message(self, text):
+        self._lines = text.splitlines()
+        self._update_screen()
 
     def set_color(self, red, green, blue):
         return
