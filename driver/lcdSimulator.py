@@ -9,7 +9,7 @@ DOWN                    = 274
 UP                      = 273
 LEFT                    = 276
 
-FONT_HEIGHT = 60
+FONT_HEIGHT = 80
 FONT_WIDTH = int(FONT_HEIGHT * 0.6)
 
 class Adafruit_CharLCDPlate:
@@ -32,6 +32,10 @@ class Adafruit_CharLCDPlate:
         self._threadLock = threading.RLock()
 
     def enable_display(self, enable):
+        if not enable:
+            print 'screen turning off'
+        else:
+            print 'screen turning on'
         self._display_on = enable
         self._update_screen()
 

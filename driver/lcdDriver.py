@@ -16,7 +16,7 @@ buttons = (LCD.SELECT, LCD.LEFT, LCD.UP, LCD.DOWN, LCD.RIGHT)
 DEBOUNCE_THRESHOLD = 10
 SCROLL_PERIOD = 0.15
 
-SCREEN_TIMEOUT = 4
+SCREEN_TIMEOUT = 30
 
 class DisplayThreadWrapper (threading.Thread):
     def __init__(self, lcd, scroller):
@@ -112,7 +112,6 @@ class InputThreadWrapper (threading.Thread):
             self._view_model.on_down_pressed()
 
     def run(self):
-        print 'abc'
         while not self._stop.isSet():
             for button in buttons:
                 if not button in self._debounce:
