@@ -7,7 +7,7 @@
 <table class="table">
   <thead>
     <tr>
-      <th class="col-xs-3 col-sm-2 col-xl-1">
+      <th class="col-xs-4 col-sm-3 col-xl-2">
         <a class="btn btn-success text-right"
                 type="button"
                 title="add"
@@ -22,7 +22,7 @@
   <tbody>
     <tr *ngFor="let program of programs">
       <td>
-        <a class="btn btn-primary text-right"
+        <a class="btn btn-default text-right"
                 type="button"
                 title="edit"
                 routerLink="/sprinkler/programs/{{program.programId}}">
@@ -33,6 +33,12 @@
                 title="delete"
                 (click)="deleteProgram(program)">
           &nbsp;<span class="glyphicon glyphicon-trash"></span>&nbsp;
+        </button>
+        <button class="btn btn-primary text-right"
+                type="button"
+                title="start"
+                (click)="startProgram(program)">
+          &nbsp;<span class="glyphicon glyphicon-play"></span>&nbsp;
         </button>
       </td>
       <td>

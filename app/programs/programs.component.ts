@@ -27,4 +27,8 @@ export class ProgramsComponent implements OnInit {
       .then(() => this.getPrograms())
       .catch(() => alert('failed to delete program'));
   }
+
+  startProgram(program: ProgramSummary): void {
+    alert('Starting program: ' + program.programId);
+  }
 }
