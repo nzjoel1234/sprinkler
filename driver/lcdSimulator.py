@@ -1,6 +1,6 @@
 import time
-import threading
 import pygame
+import threading
 
 # Char LCD plate button names.
 SELECT                  = 32
@@ -9,8 +9,8 @@ DOWN                    = 274
 UP                      = 273
 LEFT                    = 276
 
-FONT_HEIGHT = 20
-FONT_WIDTH = 12
+FONT_HEIGHT = 60
+FONT_WIDTH = int(FONT_HEIGHT * 0.6)
 
 class Adafruit_CharLCDPlate:
 
@@ -29,6 +29,7 @@ class Adafruit_CharLCDPlate:
         }
         self._lines = ['', '']
         self._display_on = False
+        self._threadLock = threading.RLock()
 
     def enable_display(self, enable):
         self._display_on = enable
@@ -39,6 +40,9 @@ class Adafruit_CharLCDPlate:
 
     def _update_screen(self):
         self.clear()
+        if not self._display_on:
+            pygame.display.flip()
+            return
         i=0
         lcd_back_color = (0,0,100) if self._display_on else (0,0,0)
         lcd_text_color = (255,255,0) if self._display_on else (100,100,0)
@@ -57,7 +61,8 @@ class Adafruit_CharLCDPlate:
         return
 
     def is_pressed(self, button):
-        return self._keyStates[button]
+        with self._threadLock:
+            return self._keyStates[button]
 
     def run(self):
         crashed = False
@@ -66,9 +71,11 @@ class Adafruit_CharLCDPlate:
 
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    self._keyStates[event.key] = True
+                    with self._threadLock:
+                        self._keyStates[event.key] = True
                 if event.type == pygame.KEYUP:
-                    self._keyStates[event.key] = False
+                    with self._threadLock:
+                        self._keyStates[event.key] = False
                 if event.type == pygame.QUIT:
                     crashed = True
 

@@ -1,55 +1,79 @@
 #!/usr/bin/python
 
-import threading
+import time
 
-SCREEN_TIMEOUT = 3
+class ViewModelBase(object):
 
-class ViewModel(object):
-
-    def __init__(self, view):
+    def __init__(self, view, change_view_model):
         self._view =  view
-        self.update_display('Program 1 - 5 mins remaining', right_option = 'stop')
-        self._view.enable_display(False)
-        self._timeout_lock = threading.RLock()
-        self._is_timed_out = True
-        self._timeout_event = None
+        self._change_view_model = change_view_model
+        self._change_view_model(self)
 
-    def update_display(self, info = '', left_option = '', right_option = ''):
+    def set_enabled(self, enabled):
+        self._view.set_enabled(enabled)
+
+    def _update_display(self, info = '', left_option = '', right_option = '', restart_scroll = True):
         lines = []
         lines.append(info)
         lines.append("%-8s%8s" % (left_option[:6], right_option[:6]))
-        self._view.set_lines(lines, restart_scroll = False)
-
-    def wake_from_screen_timeout(self):
-        with self._timeout_lock:
-            if self._timeout_event is not None:
-                self._timeout_event.cancel()
-            self._timeout_event = threading.Timer(SCREEN_TIMEOUT, self.on_screen_timeout)
-            self._is_timed_out = False
-            self._view.enable_display(True)
-            self._timeout_event.start()
-
-    def on_screen_timeout(self):
-        with self._timeout_lock:
-            self._is_timed_out = True
-            self._view.enable_display(False)
+        self._view.set_lines(lines, restart_scroll)
 
     def on_left_pressed(self):
-        self.wake_from_screen_timeout()
-        self.update_display('Left button was pressed', left_option = 'left')
+        return
 
     def on_right_pressed(self):
-        self.wake_from_screen_timeout()
-        self.update_display('Right button was pressed', right_option = 'right')
+        return
 
     def on_up_pressed(self):
-        self.wake_from_screen_timeout()
-        self.update_display('Up button was pressed', left_option = 'up', right_option = 'up')
+        return
 
     def on_down_pressed(self):
-        self.wake_from_screen_timeout()
-        self.update_display('Down button was pressed', left_option = 'down', right_option = 'down')
+        return
 
-    def on_select_pressed(self):
-        self.wake_from_screen_timeout()
-        self.update_display('Select button was pressed')
+
+class HomeViewModel(ViewModelBase):
+
+    def __init__(self, view, change_view_model):
+        super(HomeViewModel, self).__init__(view, change_view_model)
+        self._update_display('Program 1 - Starts in 5 mins', right_option = 'progs')
+
+    def on_right_pressed(self):
+        ProgramListViewModel(self._view, self._change_view_model)
+
+
+class ProgramListViewModel(ViewModelBase):
+
+    def __init__(self, view, change_view_model):
+        super(ProgramListViewModel, self).__init__(view, change_view_model)
+        self._update_display('Loading...', left_option = 'back')
+        self._index = None
+        time.sleep(1)
+        self._programs = ['Program 1', 'Program with a very long name', 'Short Name']
+        self._index = 0
+        self._move_program(0)
+
+    def _move_program(self, step):
+        if self._index == None:
+            return
+        self._index += step
+        while self._index < 0:
+            self._index += len(self._programs)
+        self._index = self._index % len(self._programs)
+        self._update_display(self._programs[self._index], left_option = 'back', right_option = 'start')
+
+    def on_down_pressed(self):
+        self._move_program(1)
+
+    def on_up_pressed(self):
+        self._move_program(-1)
+
+    def on_left_pressed(self):
+        HomeViewModel(self._view, self._change_view_model)
+        
+    def on_right_pressed(self):
+        if self._index == None:
+            return
+        self._index = None
+        self._update_display('Starting...', left_option = 'back')
+        
+
