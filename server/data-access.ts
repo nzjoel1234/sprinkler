@@ -30,7 +30,11 @@ function upgradeIfRequired(db: sqlite3.Database): Promise<any> {
     {
       if (err) return reject(err);
       
+      if (upgraded)
+        return resolve();
+
       executeUpgradeScriptIfRequired(db, 'create.sql', row.user_version as number, 1)
+        .then(() => executeUpgradeScriptIfRequired(db, 'version_2.sql', row.user_version as number, 2))
         .then(() => upgraded = true)
         .then(resolve)
         .catch(reject);

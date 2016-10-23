@@ -44,11 +44,21 @@ class HomeViewModel(ViewModelBase):
         self._change_view_model(programViewModel)
 
 
+class MessageViewModel(ViewModelBase):
+
+    def __init__(self, view, change_view_model, message):
+        super(MessageViewModel, self).__init__(view, change_view_model)
+        self._update_display(message, left_option = 'back')
+        
+    def on_left_pressed(self):
+        self._change_view_model( \
+            HomeViewModel(self._view, self._change_view_model))
+
+
 class ProgramListViewModel(ViewModelBase):
 
     def __init__(self, view, change_view_model):
         super(ProgramListViewModel, self).__init__(view, change_view_model)
-        self._update_display('Loading...', left_option = 'back')
         self._index = None
         self._programs = []
         self._programsLock = threading.RLock()
@@ -66,16 +76,22 @@ class ProgramListViewModel(ViewModelBase):
             self._index = None
             self._programs = []
             if failed:
-                self._update_display('ERROR: Failed to load programs (No Response)', left_option = 'back')
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to load programs (No Response)'))
                 return
             if r.status_code != 200:
-                self._update_display('ERROR: Failed to load programs (%s)' % r.status_code, left_option = 'back')
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to load programs (%s)' % r.status_code))
                 return
             print "Got result: " + str(r.json())
             try:
-                self._programs = list(map((lambda i: i['name']), r.json()))
+                self._programs = r.json()
             except Exception:
-                self._update_display('ERROR: Failed to parse programs', left_option = 'back')
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to parse programs (%s)'))
                 return
             if len(self._programs) == 0:
                 self._update_display('No programs', left_option = 'back')
@@ -88,17 +104,15 @@ class ProgramListViewModel(ViewModelBase):
         if self._enabled == enabled:
             return
         self._enabled = enabled
-        if self._enabled:
-            with self._programsLock:
+        with self._programsLock:
+            if self._enabled:
                 self._update_display('Loading...', left_option = 'back')
                 if self._updateProgramThread != None and self._updateProgramThread.isAlive:
                     return
                 self._updateProgramThread = threading.Thread(target=self._update_program_list)
                 self._updateProgramThread.start()
-        else:
-            with self._programsLock:
+            else:
                 if self._updateProgramThread != None and self._updateProgramThread.isAlive:
-                    self._updateProgramThread.join()
                     self._updateProgramThread = None
 
     def _move_program(self, step):
@@ -109,7 +123,7 @@ class ProgramListViewModel(ViewModelBase):
             while self._index < 0:
                 self._index += len(self._programs)
             self._index = self._index % len(self._programs)
-            self._update_display(self._programs[self._index], left_option = 'back', right_option = 'start')
+            self._update_display(self._programs[self._index]['name'], left_option = 'back', right_option = 'start')
 
     def on_down_pressed(self):
         self._move_program(1)
@@ -118,14 +132,66 @@ class ProgramListViewModel(ViewModelBase):
         self._move_program(-1)
 
     def on_left_pressed(self):
-        homeViewModel = HomeViewModel(self._view, self._change_view_model)
-        self._change_view_model(homeViewModel)
+        self._change_view_model( \
+            HomeViewModel(self._view, self._change_view_model))
         
     def on_right_pressed(self):
         with self._programsLock:
-            if self._index == None:
-                return
+            self._change_view_model( \
+                StartProgramViewModel(self._view, self._change_view_model,
+                    self._programs[self._index]['programId']))
+
+
+class StartProgramViewModel(ViewModelBase):
+
+    def __init__(self, view, change_view_model, programId):
+        super(StartProgramViewModel, self).__init__(view, change_view_model)
+        self._programId = programId
+        self._threadLock = threading.RLock()
+        self._startProgramThread = None
+        self._enabled = False
+
+    def _start_program(self):
+
+        failed = False
+        try:
+            r = requests.post('http://localhost:4000/api/programs/%s/start' % self._programId)
+        except Exception:
+            failed = True
+        with self._threadLock:
             self._index = None
-            self._update_display('Starting...', left_option = 'back')
-        
+            self._programs = []
+            if failed:
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to start program (No Response)'))
+                return
+            if r.status_code != 200:
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to start program (%s)' % r.status_code))
+                return
+            self._change_view_model( \
+                MessageViewModel(self._view, self._change_view_model, \
+                    'Program started'))
+
+    def set_enabled(self, enabled):
+        super(StartProgramViewModel, self).set_enabled(enabled)
+        if self._enabled == enabled:
+            return
+        self._enabled = enabled
+        with self._threadLock:
+            if self._enabled:
+                self._update_display('Starting...', left_option = 'back')
+                if self._startProgramThread != None and self._startProgramThread.isAlive:
+                    return
+                self._startProgramThread = threading.Thread(target=self._start_program)
+                self._startProgramThread.start()
+            else:
+                if self._startProgramThread != None and self._startProgramThread.isAlive:
+                    self._startProgramThread = None
+
+    def on_left_pressed(self):
+        self._change_view_model( \
+            HomeViewModel(self._view, self._change_view_model))
 

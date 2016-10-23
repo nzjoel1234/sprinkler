@@ -25,10 +25,12 @@ export class ProgramsComponent implements OnInit {
   deleteProgram(program: ProgramSummary): void {
     this.programService.deleteProgram(program.programId)
       .then(() => this.getPrograms())
-      .catch(() => alert('failed to delete program'));
+      .catch(() => alert('Failed to delete program'));
   }
 
   startProgram(program: ProgramSummary): void {
-    alert('Starting program: ' + program.programId);
+    this.programService.startProgram(program.programId)
+      .then(() => alert(`Started program '${program.name}'`))
+      .catch(() => alert('Failed to delete program'));
   }
 }

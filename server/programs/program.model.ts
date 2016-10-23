@@ -294,3 +294,25 @@ function updateStages(db: dataAccess.SqliteConnection, programId: number, stages
       parameters);
   });
 }
+
+export function start(programId: number): Promise<any> {
+  let startTime = Math.floor((new Date).getTime()/1000);
+
+  return dataAccess.invoke(db =>
+    db.run('BEGIN TRANSACTION')
+    .then(() =>
+      db.run(`
+        INSERT INTO ProgramStart (ProgramId, StartTime)
+        VALUES ($programId, $startTime)
+      `, { $programId: programId, $startTime: startTime })
+      .then(() => db.run('select changes()'))
+      .then(changes => {
+        if (!changes) throw new NotFoundError();
+      })
+      .then(() => db.run('END TRANSACTION'))
+      .catch(error => {
+        db.run('ROLLBACK TRANSACTION');
+        throw error;
+      })
+  ));
+}

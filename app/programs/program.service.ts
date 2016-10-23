@@ -34,9 +34,9 @@ export class ProgramService {
       .catch(this.handleError);
   }
   
-  deleteProgram(id: number): Promise<any> {
+  deleteProgram(programId: number): Promise<any> {
     return this.http
-      .delete('api/programs/' + id)
+      .delete('api/programs/' + programId)
       .toPromise()
       .catch(this.handleError);
   }
@@ -51,6 +51,18 @@ export class ProgramService {
 
     return this.http
       .post(url, body, options)
+      .toPromise()
+      .catch(this.handleError);
+  }
+  
+  startProgram(programId: number): Promise<any> {
+
+    let url = `api/programs/${programId}/start`
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http
+      .post(url, "", options)
       .toPromise()
       .catch(this.handleError);
   }

@@ -81,6 +81,23 @@ function createProgram(req: express.Request, res: express.Response) {
     });
 }
 
+function startProgram(req: express.Request, res: express.Response) {
+  
+  res.setHeader('Content-Type', 'application/json');
+  
+  let programId = parseInt(req.params.programId);
+
+  ProgramModel
+    .start(programId)
+    .then(() => res.status(200).send())
+    .catch(error => {
+      if (error instanceof ProgramModel.NotFoundError)
+        return res.status(404).send(JSON.stringify({ detail: 'Not Found' }));
+      console.log('failed to start program: ' + JSON.stringify(error));
+      res.status(500).send(JSON.stringify(error));
+    });
+}
+
 let programsRouter = express.Router();
 
 programsRouter.get('', getPrograms);
@@ -88,5 +105,6 @@ programsRouter.post('', createProgram);
 programsRouter.get('/:programId', getProgramDetail);
 programsRouter.post('/:programId', updateProgram);
 programsRouter.delete('/:programId', deleteProgram);
+programsRouter.post('/:programId/start', startProgram);
 
 export = programsRouter;
