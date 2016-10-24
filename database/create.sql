@@ -30,13 +30,6 @@ CREATE TABLE `ProgramSchedule` (
 	`ScheduleType`	INTEGER NOT NULL,
 	`StartTimeHours`	INTEGER NOT NULL,
 	`StartTimeMinutes`	INTEGER NOT NULL,
-	`Monday`	BOOLEAN NOT NULL,
-	`Tuesday`	BOOLEAN NOT NULL,
-	`Wednesday`	BOOLEAN NOT NULL,
-	`Thursday`	BOOLEAN NOT NULL,
-	`Friday`	BOOLEAN NOT NULL,
-	`Saturday`	BOOLEAN NOT NULL,
-	`Sunday`	BOOLEAN NOT NULL,
 	FOREIGN KEY(`ProgramId`) REFERENCES Program (ProgramId)
 );
 

@@ -114,6 +114,20 @@ export class ProgramDetailComponent implements OnInit {
     let index = this.program.stages.indexOf(item);
     this.program.stages.splice(index, 1);
   }
+  
+  addSchedule(): void {
+    let newSchedule = new ProgramSchedule();
+    newSchedule.scheduleType = ProgramScheduleType.AllDays;
+    newSchedule.startTimeHours = 0;
+    newSchedule.startTimeMinutes = 0;
+    let newItem = new ProgramScheduleViewModel(newSchedule);
+    this.schedules.push(newItem);
+  }
+  
+  removeSchedule(item: ProgramScheduleViewModel): void {
+    let index = this.schedules.indexOf(item);
+    this.schedules.splice(index, 1);
+  }
 
   save(): void {
     this.program.schedules = this.schedules.map(s => s.model);

@@ -30,6 +30,57 @@
                 <button class="btn btn-sm btn-success text-right"
                         type="button"
                         title="add"
+                        (click)="addSchedule()">
+                  &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
+                </button>
+              </th>
+              <th class="col-xs-7">Schedule</th>
+              <th class="col-xs-3">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td *ngIf="schedules.length == 0" colspan="3" class="text-center">
+                <i>Manual Operation Only</i>
+              </td>
+            </tr>
+            <tr *ngFor="let schedule of schedules">
+              <td>
+                <button class="btn btn-sm btn-danger text-right"
+                        type="button"
+                        title="remove"
+                        (click)="removeSchedule(schedule)">
+                  &nbsp;<span class="glyphicon glyphicon-minus"></span>&nbsp;
+                </button>
+              </td>
+              <td>
+                <select class="form-control" [(ngModel)]="schedule.model.scheduleType">
+                  <option *ngFor="let programScheduleType of programScheduleTypes"
+                          value="{{programScheduleType.value}}">
+                          {{programScheduleType.display}}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <timepicker id="startTime"
+                            [(ngModel)]="schedule.startTime"
+                            (change)="schedule.startTimeChanged()"
+                            [showMeridian]="false"
+                            [showSpinners]="false">
+                </timepicker>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="form-group">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="col-xs-1">
+                <button class="btn btn-sm btn-success text-right"
+                        type="button"
+                        title="add"
                         (click)="addStage()">
                   &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
                 </button>
@@ -63,38 +114,6 @@
           </tbody>
         </table>
         <p>Duration: {{getRunningTime()}} mins</p>
-      </div>
-      <div *ngFor="let schedule of schedules">
-        <div class="form-group">
-          <label>
-              Auto-Run
-          </label>
-          <select class="form-control" [(ngModel)]="schedule.model.scheduleType">
-            <option *ngFor="let programScheduleType of programScheduleTypes"
-                    value="{{programScheduleType.value}}">
-                    {{programScheduleType.display}}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="startTime">Time</label>
-          <timepicker id="startTime"
-                      [(ngModel)]="startTime"
-                      (change)="startTimeChanged()"
-                      [showMeridian]="false"
-                      [showSpinners]="false">
-          </timepicker>
-        </div>
-        <div class="form-group">
-          <label>Day Selection</label>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.monday">Monday</label></div>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.tuesday">Tuesday</label></div>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.wednesday">Wednesday</label></div>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.thursday">Thursday</label></div>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.friday">Friday</label></div>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.saturday">Saturday</label></div>
-          <div class="checkbox"><label><input type="checkbox" [(ngModel)]="schedule.model.sunday">Sunday</label></div>
-        </div>
       </div>
     </div>
   </div>

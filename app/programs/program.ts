@@ -18,13 +18,6 @@ export class ProgramSchedule {
   scheduleType: ProgramScheduleType = ProgramScheduleType.AllDays;
   startTimeHours: number = 0;
   startTimeMinutes: number = 0;
-  monday: boolean = true;
-  tuesday: boolean = true;
-  wednesday: boolean = true;
-  thursday: boolean = true;
-  friday: boolean = true;
-  saturday: boolean = true;
-  sunday: boolean = true;
 }
 
 export class ProgramStage {

@@ -18,13 +18,6 @@ export class ProgramSchedule {
   scheduleType: ProgramScheduleType;
   startTimeHours: number;
   startTimeMinutes: number;
-  monday: boolean;
-  tuesday: boolean;
-  wednesday: boolean;
-  thursday: boolean;
-  friday: boolean;
-  saturday: boolean;
-  sunday: boolean;
 }
 
 export class ProgramStage {
@@ -94,14 +87,7 @@ export function getProgramDetail(programId: number): Promise<Program> {
         SELECT
           ScheduleType as scheduleType,
           StartTimeHours as startTimeHours,
-          StartTimeMinutes as startTimeMinutes,
-          Monday as monday,
-          Tuesday as tuesday,
-          Wednesday as wednesday,
-          Thursday as thursday,
-          Friday as friday,
-          Saturday as saturday,
-          Sunday as sunday
+          StartTimeMinutes as startTimeMinutes
         FROM ProgramSchedule
         WHERE ProgramId = $programId`,
         { $programId: programId })
@@ -210,13 +196,6 @@ function updateSchedules(db: dataAccess.SqliteConnection, programId: number, sch
     parameters[`$scheduleType_${index}`] = schedule.scheduleType;
     parameters[`$startTimeHours_${index}`] = schedule.startTimeHours;
     parameters[`$startTimeMinutes_${index}`] = schedule.startTimeMinutes;
-    parameters[`$monday_${index}`] = schedule.monday;
-    parameters[`$tuesday_${index}`] = schedule.tuesday;
-    parameters[`$wednesday_${index}`] = schedule.wednesday;
-    parameters[`$thursday_${index}`] = schedule.thursday;
-    parameters[`$friday_${index}`] = schedule.friday;
-    parameters[`$saturday_${index}`] = schedule.saturday;
-    parameters[`$sunday_${index}`] = schedule.sunday;
   }
 
   let valuesFormat = schedules.map((schedule, index) =>
@@ -224,14 +203,7 @@ function updateSchedules(db: dataAccess.SqliteConnection, programId: number, sch
       $programId,
       $scheduleType_${index},
       $startTimeHours_${index},
-      $startTimeMinutes_${index},
-      $monday_${index},
-      $tuesday_${index},
-      $wednesday_${index},
-      $thursday_${index},
-      $friday_${index},
-      $saturday_${index},
-      $sunday_${index}
+      $startTimeMinutes_${index}
     )`).join(',');
 
   return db.run(`
@@ -245,14 +217,7 @@ function updateSchedules(db: dataAccess.SqliteConnection, programId: number, sch
         programId,
         scheduleType,
         startTimeHours,
-        startTimeMinutes,
-        monday,
-        tuesday,
-        wednesday,
-        thursday,
-        friday,
-        saturday,
-        sunday)
+        startTimeMinutes)
         VALUES ${valuesFormat}`,
       parameters);
   });
