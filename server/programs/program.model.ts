@@ -276,8 +276,8 @@ export function start(programId: number): Promise<any> {
     db.run('BEGIN TRANSACTION')
     .then(() =>
       db.run(`
-        INSERT INTO ProgramStart (ProgramId, StartTime)
-        VALUES ($programId, CAST(strftime('%s','now') AS INTEGER))
+        INSERT INTO ManualStart (ProgramId, StartTime)
+        VALUES ($programId, CAST(strftime('%s', 'now', 'localtime') AS INTEGER))
       `, { $programId: programId })
       .then(() => db.run('select changes()'))
       .then(changes => {
@@ -294,14 +294,32 @@ export function start(programId: number): Promise<any> {
 export function getNextScheduledStage(): Promise<ScheduledStage> {
   return dataAccess.invoke(db =>
       db.run(`
-        DELETE FROM ProgramStart
-        WHERE ProgramStartId IN
+        DELETE FROM ManualStart
+        WHERE ManualStartId IN
         (
-          SELECT ProgramStartId
+          SELECT ManualStartId
           FROM ScheduledStage
           WHERE ScheduledStage.ProgramEndIn < 0
         )
       `)
+      .then(() =>
+        db.run(`
+          DELETE FROM ManualStart
+          WHERE ManualStartId IN
+          (
+              -- Remove programs which have ended
+              SELECT ManualStartId
+              FROM ScheduledStage
+              WHERE ScheduledStage.ProgramEndIn < 0
+            UNION
+              -- Remove programs which have other programs which have started after them
+              SELECT OlderScheduledStage.ManualStartId
+              FROM ScheduledStage OlderScheduledStage
+              INNER JOIN ScheduledStage NewerScheduledStage
+                ON NewerScheduledStage.ProgramStartIn > OlderScheduledStage.ProgramStartIn
+                  AND NewerScheduledStage.ProgramStartIn <= 0
+          )
+      `))
       .then(() =>
         db.get(`
           SELECT
