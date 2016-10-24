@@ -20,4 +20,28 @@ INNER JOIN
 ) PreStages
     ON ProgramStage.ProgramStageId = PreStages.ProgramStageId;
 
+CREATE VIEW IF NOT EXISTS ScheduledStage AS
+SELECT
+   Program.ProgramStartId AS ProgramStartId,
+   Program.ProgramId AS ProgramId,
+   Program.StartIn AS ProgramStartIn,
+   Program.StartIn + Program.Minutes * 60 AS ProgramEndIn,
+   ProgramStageDelay.ZoneId AS ZoneId,
+   Program.StartIn + ProgramStageDelay.Delay * 60 AS StageStartIn,
+   Program.StartIn + ProgramStageDelay.Delay * 60 + ProgramStageDelay.Minutes * 60 AS StageEndIn
+FROM
+(
+   SELECT
+      ProgramStart.ProgramStartId,
+      ProgramStart.ProgramId,
+      ProgramStart.StartTime - CAST(strftime('%s','now') AS INTEGER) AS StartIn,
+      SUM(ProgramStage.Minutes) AS Minutes
+   FROM ProgramStart
+   INNER JOIN ProgramStage
+      ON ProgramStart.ProgramId = ProgramStage.ProgramId
+   GROUP BY ProgramStart.ProgramStartId, ProgramStart.ProgramId, ProgramStart.StartTime
+) Program
+INNER JOIN ProgramStageDelay
+  ON Program.ProgramId = ProgramStageDelay.ProgramId;
+
 PRAGMA user_version = 2;

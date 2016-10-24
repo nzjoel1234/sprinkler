@@ -32,6 +32,17 @@ export enum ProgramScheduleType {
   EvenDays = 2
 }
 
+export class ScheduledStage {
+  programId: number;
+  programName: string;
+  zoneId: number;
+  zoneName: string;
+  programStartIn: number;
+  programEndIn: number;
+  stageStartIn: number;
+  stageEndIn: number;
+}
+
 export class NotFoundError extends Error { }
 
 export function getPrograms(): Promise<ProgramSummary[]> {
@@ -261,15 +272,13 @@ function updateStages(db: dataAccess.SqliteConnection, programId: number, stages
 }
 
 export function start(programId: number): Promise<any> {
-  let startTime = Math.floor((new Date).getTime()/1000);
-
   return dataAccess.invoke(db =>
     db.run('BEGIN TRANSACTION')
     .then(() =>
       db.run(`
         INSERT INTO ProgramStart (ProgramId, StartTime)
-        VALUES ($programId, $startTime)
-      `, { $programId: programId, $startTime: startTime })
+        VALUES ($programId, CAST(strftime('%s','now') AS INTEGER))
+      `, { $programId: programId })
       .then(() => db.run('select changes()'))
       .then(changes => {
         if (!changes) throw new NotFoundError();
@@ -280,4 +289,42 @@ export function start(programId: number): Promise<any> {
         throw error;
       })
   ));
+}
+
+export function getNextScheduledStage(): Promise<ScheduledStage> {
+  return dataAccess.invoke(db =>
+      db.run(`
+        DELETE FROM ProgramStart
+        WHERE ProgramStartId IN
+        (
+          SELECT ProgramStartId
+          FROM ScheduledStage
+          WHERE ScheduledStage.ProgramEndIn < 0
+        )
+      `)
+      .then(() =>
+        db.get(`
+          SELECT
+            Program.ProgramId AS programId,
+            Program.Name AS programName,
+            Zone.ZoneId AS zoneId,
+            Zone.Name AS zoneName,
+            ScheduledStage.ProgramStartIn AS programStartIn,
+            ScheduledStage.ProgramEndIn AS programEndIn,
+            ScheduledStage.StageStartIn AS stageStartIn,
+            ScheduledStage.StageEndIn AS stageEndIn
+          FROM ScheduledStage
+          INNER JOIN Program
+            ON ScheduledStage.ProgramId = Program.ProgramId
+          INNER JOIN Zone
+            ON ScheduledStage.ZoneId = Zone.ZoneId
+          WHERE StageEndIn > 0
+          ORDER BY
+            ProgramStartIn > 0, -- Already started programs first
+            ProgramStartIn * ProgramStartIn, -- Want the unsigned start time so that the last started program goes first
+            StageStartIn
+          LIMIT 1
+        `)
+      )
+      .then(stage => stage as ScheduledStage));
 }
