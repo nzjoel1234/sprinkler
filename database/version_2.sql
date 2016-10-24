@@ -6,7 +6,7 @@ CREATE TABLE `ProgramStart` (
 	FOREIGN KEY(`ProgramId`) REFERENCES Program (ProgramId)
 );
 
-CREATE VIEW ProgramStageDelay AS
+CREATE VIEW IF NOT EXISTS ProgramStageDelay AS
 SELECT ProgramStage.ProgramId, ProgramStage.ZoneId, ProgramStage.Minutes, PreStages.Delay
 FROM ProgramStage
 INNER JOIN
@@ -18,6 +18,6 @@ INNER JOIN
           AND Stage.OrderId > PreStage.OrderId
     GROUP BY Stage.ProgramStageId
 ) PreStages
-    ON ProgramStage.ProgramStageId = PreStages.ProgramStageId
+    ON ProgramStage.ProgramStageId = PreStages.ProgramStageId;
 
 PRAGMA user_version = 2;
