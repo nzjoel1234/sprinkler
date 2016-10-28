@@ -1,4 +1,3 @@
-import time
 import pygame
 import threading
 
@@ -32,10 +31,6 @@ class Adafruit_CharLCDPlate:
         self._threadLock = threading.RLock()
 
     def enable_display(self, enable):
-        if not enable:
-            print 'screen turning off'
-        else:
-            print 'screen turning on'
         self._display_on = enable
         self._update_screen()
 

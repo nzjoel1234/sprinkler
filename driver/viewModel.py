@@ -4,9 +4,7 @@ import time
 import threading
 import requests
 
-import backgroundRequest
-
-UPDATE_NEXT_PROGRAM_INFO_INTERVAL = 5
+UPDATE_LCD_STATUS_PERIOD = 5
 
 class ViewModelBase(object):
 
@@ -38,14 +36,15 @@ class ViewModelBase(object):
 
 class HomeViewModel(ViewModelBase):
 
-    def __init__(self, view, change_view_model):
+    def __init__(self, view, change_view_model, sprinkler_service):
         super(HomeViewModel, self).__init__(view, change_view_model)
         self._enabled = False
-        self._startProgramWorker = \
-            backgroundRequest.BackgroundRequest(self._call_get_next_stage, self._on_get_next_stage_result)
+        self._sprinkler_service = sprinkler_service
+        self._stop_event = threading.Event()
+        self._last_status_change_id = None
 
     def on_right_pressed(self):
-        programViewModel = ProgramListViewModel(self._view, self._change_view_model)
+        programViewModel = ProgramListViewModel(self._view, self._change_view_model, self._sprinkler_service)
         self._change_view_model(programViewModel)
 
     def set_enabled(self, enabled):
@@ -54,62 +53,17 @@ class HomeViewModel(ViewModelBase):
             return
         self._enabled = enabled
         if self._enabled:
-            self._update_display('Loading...', right_option = 'progs')
-            self._startProgramWorker.begin_request()
-            self._previousNextProgram = None
-            self._previousState = None
+            self._stop_event.clear()
+            threading.Thread(target = self._lcd_update_loop).start()
         else:
-            self._startProgramWorker.cancel()
-            if self._update_event != None:
-                self._update_event.cancel()
+            self._stop_event.set()
 
-    def _call_get_next_stage(self):
-        return requests.get('http://localhost:4000/api/programs/next-scheduled-stage')
-
-    def _on_get_next_stage_result(self, response):
-
-        if response == None:
-            self._change_view_model( \
-                MessageViewModel(self._view, self._change_view_model, \
-                    'ERROR: Failed to get next stage (No Response)'))
-            self._update_event = threading.Timer(UPDATE_NEXT_PROGRAM_INFO_INTERVAL, self._call_get_next_stage)
-            self._update_event.start()
-            return
-
-        if response.status_code != 200:
-            self._change_view_model( \
-                MessageViewModel(self._view, self._change_view_model, \
-                    'ERROR: Failed to get next stage (STATUS=%s)' % response.status_code))
-            self._update_event = threading.Timer(UPDATE_NEXT_PROGRAM_INFO_INTERVAL, self._call_get_next_stage)
-            self._update_event.start()
-            return
-
-        nextStage = None
-        try:
-            nextStage = response.json()
-        except Exception:
-            self._change_view_model( \
-                MessageViewModel(self._view, self._change_view_model, \
-                    'ERROR: Failed to parse next stage'))
-            self._update_event = threading.Timer(UPDATE_NEXT_PROGRAM_INFO_INTERVAL, self._call_get_next_stage)
-            self._update_event.start()
-            return
-
-        programName = nextStage['programName']
-        if nextStage['programStartIn'] >= 0:
-            restartScroll = self._previousNextProgram != programName or self._previousState != 'pending'
-            self._previousState = 'pending'
-            minutes = int(nextStage['programStartIn']) / 60
-            self._update_display('%s - Starts in %s mins' % (programName, minutes), right_option = 'progs', restart_scroll = restartScroll)
-        else:
-            restartScroll = self._previousNextProgram != programName or self._previousState != 'running'
-            self._previousState = 'running'
-            minutes = int(nextStage['programEndIn']) / 60
-            self._update_display('%s - %s mins remaining' % (programName, minutes), right_option = 'progs', restart_scroll = restartScroll)
-        self._previousNextProgram = programName
-
-        self._update_event = threading.Timer(UPDATE_NEXT_PROGRAM_INFO_INTERVAL, self._startProgramWorker.begin_request)
-        self._update_event.start()
+    def _lcd_update_loop(self):
+        while not self._stop_event.is_set():
+            (status, status_change_id) = self._sprinkler_service.get_status()
+            self._update_display(status, right_option = 'progs', restart_scroll = self._last_status_change_id != status_change_id)
+            self._last_status_change_id = status_change_id
+            self._stop_event.wait(UPDATE_LCD_STATUS_PERIOD)
 
 
 class MessageViewModel(ViewModelBase):
@@ -119,20 +73,18 @@ class MessageViewModel(ViewModelBase):
         self._update_display(message, left_option = 'back')
         
     def on_left_pressed(self):
-        self._change_view_model( \
-            HomeViewModel(self._view, self._change_view_model))
+        self._change_view_model()
 
 
 class ProgramListViewModel(ViewModelBase):
 
-    def __init__(self, view, change_view_model):
+    def __init__(self, view, change_view_model, sprinkler_service):
         super(ProgramListViewModel, self).__init__(view, change_view_model)
         self._index = 0
         self._programs = []
         self._enabled = False
+        self._sprinkler_service = sprinkler_service
         self._programsLock = threading.RLock()
-        self._updateProgramWorker = \
-            backgroundRequest.BackgroundRequest(self._call_get_programs, self._on_program_list_result)
 
     def _call_get_programs(self):
         return requests.get('http://localhost:4000/api/programs')
@@ -172,9 +124,7 @@ class ProgramListViewModel(ViewModelBase):
         self._enabled = enabled
         if self._enabled:
             self._update_display('Loading...', left_option = 'back')
-            self._updateProgramWorker.begin_request()
-        else:
-            self._updateProgramWorker.cancel()
+            self._sprinkler_service.get_programs(self._on_program_list_result)
 
     def _move_program(self, step):
         with self._programsLock:
@@ -199,27 +149,22 @@ class ProgramListViewModel(ViewModelBase):
         self._move_program(-1)
 
     def on_left_pressed(self):
-        self._change_view_model( \
-            HomeViewModel(self._view, self._change_view_model))
+        self._change_view_model()
         
     def on_right_pressed(self):
         with self._programsLock:
             self._change_view_model( \
-                StartProgramViewModel(self._view, self._change_view_model,
+                StartProgramViewModel(self._view, self._change_view_model, self._sprinkler_service,
                     self._programs[self._index]['programId']))
 
 
 class StartProgramViewModel(ViewModelBase):
 
-    def __init__(self, view, change_view_model, programId):
+    def __init__(self, view, change_view_model, sprinkler_service, programId):
         super(StartProgramViewModel, self).__init__(view, change_view_model)
         self._programId = programId
+        self._sprinkler_service = sprinkler_service
         self._enabled = False
-        self._startProgramWorker = \
-            backgroundRequest.BackgroundRequest(self._call_start_program, self._on_program_start_result)
-
-    def _call_start_program(self):
-        return requests.post('http://localhost:4000/api/programs/%s/start' % self._programId)
 
     def _on_program_start_result(self, response):
 
@@ -246,10 +191,7 @@ class StartProgramViewModel(ViewModelBase):
         self._enabled = enabled
         if self._enabled:
             self._update_display('Starting...', left_option = 'back')
-            self._startProgramWorker.begin_request()
-        else:
-            self._startProgramWorker.cancel()
+            self._sprinkler_service.start_program(self._programId, self._on_program_start_result)
 
     def on_left_pressed(self):
-        self._change_view_model( \
-            HomeViewModel(self._view, self._change_view_model))
+        self._change_view_model()
