@@ -31,19 +31,37 @@ class SprinklerService (object):
         hours = minutes / 60
         return '%s hours' % hours
 
-    def start_program(self, program_id, on_result):
+    def _do_get_programs(self):
+        url = '%s/api/programs' % self._baseUrl
+        try:
+            return requests.get(url)
+        except:
+            return None
+
+    def _do_start_program(self, program_id):
         url = '%s/api/programs/%s/start' % (self._baseUrl, program_id)
-        target = lambda: on_result(requests.post(url))
+        try:
+            return requests.post(url)
+        except:
+            return None
+
+    def _do_get_next_stage(self):
+        url = '%s/api/programs/next-scheduled-stage' % self._baseUrl
+        try:
+            return requests.get(url)
+        except:
+            return None
+
+    def start_program(self, program_id, on_result):
+        target = lambda: on_result(self._do_start_program(program_id))
         threading.Thread(target = target).start()
 
     def get_programs(self, on_result):
-        url = '%s/api/programs' % self._baseUrl
-        target = lambda: on_result(requests.get(url))
+        target = lambda: on_result(self._do_get_programs())
         threading.Thread(target = target).start()
 
     def _call_get_next_stage(self):
-        url = '%s/api/programs/next-scheduled-stage' % self._baseUrl
-        target = lambda: self._on_get_next_stage_result(requests.get(url))
+        target = lambda: self._on_get_next_stage_result(self._do_get_next_stage())
         threading.Thread(target = target).start()
 
     def _on_get_next_stage_result(self, response):

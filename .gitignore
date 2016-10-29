@@ -24,3 +24,4 @@ _temp
 /dist
 database/db.sqlite3
 *.pyc
+database/*.sqlite3

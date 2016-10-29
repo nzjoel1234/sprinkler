@@ -37,7 +37,7 @@ inputThread.start()
 
 lcd.run()
 
-self._zone_service.set_zone(None)
+zoneService.set_zone(None)
 
 print "stopping threads..."
 sprinklerService.stop()
