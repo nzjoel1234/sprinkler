@@ -1,10 +1,4 @@
-#!/usr/bin/python
-
-import time
 import threading
-import requests
-
-UPDATE_LCD_STATUS_PERIOD = 5
 
 class ViewModelBase(object):
 
@@ -43,9 +37,13 @@ class HomeViewModel(ViewModelBase):
         self._stop_event = threading.Event()
         self._last_status_change_id = None
 
+    def on_left_pressed(self):
+        self._change_view_model( \
+            StopProgramViewModel(self._view, self._change_view_model, self._sprinkler_service))
+
     def on_right_pressed(self):
-        programViewModel = ProgramListViewModel(self._view, self._change_view_model, self._sprinkler_service)
-        self._change_view_model(programViewModel)
+        self._change_view_model( \
+            ProgramListViewModel(self._view, self._change_view_model, self._sprinkler_service))
 
     def set_enabled(self, enabled):
         super(HomeViewModel, self).set_enabled(enabled)
@@ -60,10 +58,11 @@ class HomeViewModel(ViewModelBase):
 
     def _lcd_update_loop(self):
         while not self._stop_event.is_set():
-            (status, status_change_id) = self._sprinkler_service.get_status()
-            self._update_display(status, right_option = 'progs', restart_scroll = self._last_status_change_id != status_change_id)
+            (status_change_id, program_in_progress, status) = self._sprinkler_service.get_status()
+            left_option = 'stop' if program_in_progress else ''
+            self._update_display(status, left_option = left_option, right_option = 'progs', restart_scroll = self._last_status_change_id != status_change_id)
             self._last_status_change_id = status_change_id
-            self._stop_event.wait(UPDATE_LCD_STATUS_PERIOD)
+            self._stop_event.wait(1)
 
 
 class MessageViewModel(ViewModelBase):
@@ -85,9 +84,6 @@ class ProgramListViewModel(ViewModelBase):
         self._enabled = False
         self._sprinkler_service = sprinkler_service
         self._programsLock = threading.RLock()
-
-    def _call_get_programs(self):
-        return requests.get('http://localhost:4000/api/programs')
 
     def _on_program_list_result(self, response):
         with self._programsLock:
@@ -154,7 +150,7 @@ class ProgramListViewModel(ViewModelBase):
     def on_right_pressed(self):
         with self._programsLock:
             self._change_view_model( \
-                StartProgramViewModel(self._view, self._change_view_model, self._sprinkler_service,
+                StartProgramViewModel(self._view, self._change_view_model, self._sprinkler_service, \
                     self._programs[self._index]['programId']))
 
 
@@ -192,6 +188,43 @@ class StartProgramViewModel(ViewModelBase):
         if self._enabled:
             self._update_display('Starting...', left_option = 'back')
             self._sprinkler_service.start_program(self._programId, self._on_program_start_result)
+
+    def on_left_pressed(self):
+        self._change_view_model()
+
+
+
+class StopProgramViewModel(ViewModelBase):
+
+    def __init__(self, view, change_view_model, sprinkler_service):
+        super(StopProgramViewModel, self).__init__(view, change_view_model)
+        self._sprinkler_service = sprinkler_service
+        self._enabled = False
+
+    def _on_program_stop_result(self, response):
+
+            if response == None:
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to stop program (No Response)'))
+                return
+
+            if response.status_code != 200:
+                self._change_view_model( \
+                    MessageViewModel(self._view, self._change_view_model, \
+                        'ERROR: Failed to stop program (STATUS=%s)' % response.status_code))
+                return
+
+            self._change_view_model()
+
+    def set_enabled(self, enabled):
+        super(StopProgramViewModel, self).set_enabled(enabled)
+        if self._enabled == enabled:
+            return
+        self._enabled = enabled
+        if self._enabled:
+            self._update_display('Stopping...', left_option = 'back')
+            self._sprinkler_service.stop_program(self._on_program_stop_result)
 
     def on_left_pressed(self):
         self._change_view_model()
