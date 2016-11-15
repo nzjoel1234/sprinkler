@@ -1,54 +1,49 @@
-#!/usr/bin/python
-# Example using a character LCD plate.
-
-import threading
-
-import lcd_scroll as Scroll
+from lcd_scroll import Scroller
 from display_thread import DisplayThreadWrapper
 from input_thread import InputThreadWrapper
 
-#import Adafruit_CharLCD as LCD
-import lcd_simulator as LCD
+#import Adafruit_CharLCD as Lcd
+import lcd_simulator as Lcd
 
 from zone_service import ZoneService
 from sprinkler_service import SprinklerService
 import view_model as VM
 
-buttons = (LCD.SELECT, LCD.LEFT, LCD.UP, LCD.DOWN, LCD.RIGHT)
+BUTTONS = (Lcd.SELECT, Lcd.LEFT, Lcd.UP, Lcd.DOWN, Lcd.RIGHT)
 
 BASE_URL = 'http://localhost:4000'
 
-lcd = LCD.Adafruit_CharLCDPlate()
-scroller = Scroll.Scroller(width=16, height=2, space = " * * * ")
+LCD = Lcd.Adafruit_CharLCDPlate()
+SCROLLER = Scroller(width=16, height=2, space=" * * * ")
 
-zoneService = ZoneService()
-sprinklerService = SprinklerService(BASE_URL, zoneService)
+ZONE_SERVICE = ZoneService()
+SPRINKLER_SERVICE = SprinklerService(BASE_URL, ZONE_SERVICE)
 
-displayThread = DisplayThreadWrapper(lcd, scroller)
+DISPLAY_THREAD = DisplayThreadWrapper(LCD, SCROLLER)
 
 def create_home_screen(set_view_model):
-    return VM.HomeViewModel(displayThread, set_view_model, sprinklerService)
+    return VM.HomeViewModel(DISPLAY_THREAD, set_view_model, SPRINKLER_SERVICE)
 
-inputThread = InputThreadWrapper(lcd.is_pressed, buttons, create_home_screen)
+INPUT_THREAD = InputThreadWrapper(LCD.is_pressed, BUTTONS, create_home_screen)
 
-sprinklerService.start()
-displayThread.start()
-inputThread.start()
+SPRINKLER_SERVICE.start()
+DISPLAY_THREAD.start()
+INPUT_THREAD.start()
 
-zoneService.set_zone(None)
+ZONE_SERVICE.set_zone(None)
 
 try:
-    lcd.run()
+    LCD.run()
 except:
     print '!!exception!!'
 
 print "stopping threads..."
-sprinklerService.stop()
-displayThread.stop()
-inputThread.stop()
+SPRINKLER_SERVICE.stop()
+DISPLAY_THREAD.stop()
+INPUT_THREAD.stop()
 
 print "waiting for threads to stop..."
-displayThread.join()
-inputThread.join()
+DISPLAY_THREAD.join()
+INPUT_THREAD.join()
 
 print "Done."

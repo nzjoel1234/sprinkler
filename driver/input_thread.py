@@ -6,7 +6,7 @@ import lcd_simulator as LCD
 DEBOUNCE_THRESHOLD = 10
 SCREEN_TIMEOUT = 30
 
-class InputThreadWrapper (threading.Thread):
+class InputThreadWrapper(threading.Thread):
     def __init__(self, is_button_pressed, buttons, create_home_screen):
         threading.Thread.__init__(self)
         self._is_button_pressed = is_button_pressed
@@ -28,7 +28,7 @@ class InputThreadWrapper (threading.Thread):
             self._timeout_stop_event = threading.Event()
         timeout_counter = self._timeout_counter
         target = lambda: self._wait_for_screen_timeout(self._timeout_stop_event, timeout_counter)
-        threading.Thread(target = target).start()
+        threading.Thread(target=target).start()
 
     def _wait_for_screen_timeout(self, _stop_event, timeout_counter):
         _stop_event.wait(SCREEN_TIMEOUT)
@@ -37,27 +37,27 @@ class InputThreadWrapper (threading.Thread):
                 self.set_enabled(False)
 
     def set_enabled(self, enabled):
-        if not self._view_model == None:
+        if not self._view_model is None:
             self._view_model.set_enabled(enabled)
         if not enabled:
             self._timeout_stop_event.set()
             self._view_model = None
         self._enabled = enabled
 
-    def set_view_model(self, new_view_model = None):
-        if not self._view_model == None:
+    def set_view_model(self, new_view_model=None):
+        if not self._view_model is None:
             self._view_model.set_enabled(False)
-        if new_view_model == None:
+        if new_view_model is None:
             new_view_model = self._create_home_screen(self.set_view_model)
         self._view_model = new_view_model
         new_view_model.set_enabled(self._enabled)
 
     def on_button_press(self, button):
         if button == LCD.SELECT:
-            self.set_enabled(not self._enabled)        
+            self.set_enabled(not self._enabled)
         if not self._enabled:
             return
-        if self._view_model == None:
+        if self._view_model is None:
             self.set_view_model()
         self._start_screen_timeout()
         if button == LCD.LEFT:

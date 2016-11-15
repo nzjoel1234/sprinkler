@@ -2,9 +2,8 @@ import threading
 
 SCROLL_PERIOD = 0.15
 
-class DisplayThreadWrapper (threading.Thread):
+class DisplayThreadWrapper(threading.Thread):
     def __init__(self, lcd, scroller):
-        
         threading.Thread.__init__(self)
         self._lcd = lcd
         self._scroller = scroller
@@ -12,7 +11,7 @@ class DisplayThreadWrapper (threading.Thread):
         self._stop_event = threading.Event()
         self._thread_lock = threading.RLock()
 
-    def set_lines(self, lines, restart_scroll = True):
+    def set_lines(self, lines, restart_scroll=True):
         with self._thread_lock:
             self._scroller.set_lines(lines, restart_scroll)
 
