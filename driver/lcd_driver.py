@@ -3,16 +3,16 @@
 
 import threading
 
-import lcdScroll as Scroll
-import displayThread
-import inputThread
+import lcd_scroll as Scroll
+from display_thread import DisplayThreadWrapper
+from input_thread import InputThreadWrapper
 
 #import Adafruit_CharLCD as LCD
-import lcdSimulator as LCD
+import lcd_simulator as LCD
 
-import zoneService
-import sprinkler_service
-import viewModel as VM
+from zone_service import ZoneService
+from sprinkler_service import SprinklerService
+import view_model as VM
 
 buttons = (LCD.SELECT, LCD.LEFT, LCD.UP, LCD.DOWN, LCD.RIGHT)
 
@@ -21,15 +21,15 @@ BASE_URL = 'http://localhost:4000'
 lcd = LCD.Adafruit_CharLCDPlate()
 scroller = Scroll.Scroller(width=16, height=2, space = " * * * ")
 
-zoneService = zoneService.ZoneService()
-sprinklerService = sprinkler_service.SprinklerService(BASE_URL, zoneService)
+zoneService = ZoneService()
+sprinklerService = SprinklerService(BASE_URL, zoneService)
 
-displayThread = displayThread.DisplayThreadWrapper(lcd, scroller)
+displayThread = DisplayThreadWrapper(lcd, scroller)
 
 def create_home_screen(set_view_model):
     return VM.HomeViewModel(displayThread, set_view_model, sprinklerService)
 
-inputThread = inputThread.InputThreadWrapper(lcd.is_pressed, buttons, create_home_screen)
+inputThread = InputThreadWrapper(lcd.is_pressed, buttons, create_home_screen)
 
 sprinklerService.start()
 displayThread.start()

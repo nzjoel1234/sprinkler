@@ -1,7 +1,7 @@
 import threading
 
 #import Adafruit_CharLCD as LCD
-import lcdSimulator as LCD
+import lcd_simulator as LCD
 
 DEBOUNCE_THRESHOLD = 10
 SCREEN_TIMEOUT = 30
