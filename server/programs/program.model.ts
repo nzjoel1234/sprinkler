@@ -277,7 +277,7 @@ export function start(programId: number): Promise<any> {
     .then(() =>
       db.run(`
         INSERT INTO ManualStart (ProgramId, StartTime)
-        VALUES ($programId, CAST(strftime('%s', 'now', 'localtime') AS INTEGER))
+        VALUES ($programId, CAST(strftime('%s', 'now', 'localtime') AS INTEGER) - 1)
       `, { $programId: programId })
       .then(() => db.run('select changes()'))
       .then(changes => {
@@ -289,6 +289,16 @@ export function start(programId: number): Promise<any> {
         throw error;
       })
   ));
+}
+
+export function stop(): Promise<any> {
+  return dataAccess.invoke(db =>
+    db.run(`
+      UPDATE ManualStop
+      SET StopTime = CAST(strftime('%s', 'now', 'localtime') AS INTEGER)
+      WHERE ManualStopId = 1
+    `)
+  );
 }
 
 export function getNextScheduledStage(): Promise<ScheduledStage> {

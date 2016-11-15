@@ -11,7 +11,7 @@ import inputThread
 import lcdSimulator as LCD
 
 import zoneService
-import sprinklerService
+import sprinkler_service
 import viewModel as VM
 
 buttons = (LCD.SELECT, LCD.LEFT, LCD.UP, LCD.DOWN, LCD.RIGHT)
@@ -22,7 +22,7 @@ lcd = LCD.Adafruit_CharLCDPlate()
 scroller = Scroll.Scroller(width=16, height=2, space = " * * * ")
 
 zoneService = zoneService.ZoneService()
-sprinklerService = sprinklerService.SprinklerService(BASE_URL, zoneService)
+sprinklerService = sprinkler_service.SprinklerService(BASE_URL, zoneService)
 
 displayThread = displayThread.DisplayThreadWrapper(lcd, scroller)
 
@@ -35,9 +35,12 @@ sprinklerService.start()
 displayThread.start()
 inputThread.start()
 
-lcd.run()
-
 zoneService.set_zone(None)
+
+try:
+    lcd.run()
+except:
+    print '!!exception!!'
 
 print "stopping threads..."
 sprinklerService.stop()

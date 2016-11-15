@@ -33,8 +33,10 @@ function upgradeIfRequired(db: sqlite3.Database): Promise<any> {
       if (upgraded)
         return resolve();
 
-      executeUpgradeScriptIfRequired(db, 'create.sql', row.user_version as number, 1)
-        .then(() => executeUpgradeScriptIfRequired(db, 'version_2.sql', row.user_version as number, 2))
+      Promise.resolve()
+        .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 1, 'create.sql'))
+        .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 2, 'version_2.sql'))
+        .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 3, 'version_3.sql'))
         .then(() => upgraded = true)
         .then(resolve)
         .catch(reject);
@@ -42,7 +44,7 @@ function upgradeIfRequired(db: sqlite3.Database): Promise<any> {
   });
 }
 
-function executeUpgradeScriptIfRequired(db: sqlite3.Database, scriptPath: string, currentVersion: number, destinationVersion: number): Promise<any> {
+function executeUpgradeScriptIfRequired(db: sqlite3.Database, currentVersion: number, destinationVersion: number, scriptPath: string): Promise<any> {
   if (currentVersion >= destinationVersion)
     return Promise.resolve();
 

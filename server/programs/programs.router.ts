@@ -98,13 +98,26 @@ function startProgram(req: express.Request, res: express.Response) {
     });
 }
 
+function stop(req: express.Request, res: express.Response) {
+  
+  res.setHeader('Content-Type', 'application/json');
+  
+  ProgramModel
+    .stop()
+    .then(() => res.status(200).send())
+    .catch(error => {
+      console.log('failed to stop programs: ' + JSON.stringify(error));
+      res.status(500).send(JSON.stringify(error));
+    });
+}
+
 function nextScheduledStage(req: express.Request, res: express.Response) {
   
   res.setHeader('Content-Type', 'application/json');
   
   ProgramModel
     .getNextScheduledStage()
-    .then(stage => res.status(200).send(JSON.stringify(stage)))
+    .then(stage => res.status(200).send(stage ? JSON.stringify(stage) : ""))
     .catch(error => {
       console.log('failed to get next scheduled stage: ' + JSON.stringify(error));
       res.status(500).send(JSON.stringify(error));
@@ -116,6 +129,7 @@ let programsRouter = express.Router();
 programsRouter.get('', getPrograms);
 programsRouter.post('', createProgram);
 programsRouter.get('/next-scheduled-stage', nextScheduledStage);
+programsRouter.post('/stop', stop);
 programsRouter.get('/:programId', getProgramDetail);
 programsRouter.post('/:programId', updateProgram);
 programsRouter.delete('/:programId', deleteProgram);

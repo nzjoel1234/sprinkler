@@ -16,7 +16,6 @@ app.use('/api', apiRouter);
 
 app.use('/app', express.static(path.resolve(__dirname, 'app')));
 app.use('/lib', express.static(path.resolve(__dirname, 'lib')));
-app.use('/systemjs.config.js', express.static(path.resolve(__dirname, 'systemjs.config.js')));
 app.use('/styles.css', express.static(path.resolve(__dirname, 'styles.css')));
 app.use('/favicon.ico', express.static(path.resolve(__dirname, 'favicon.ico')));
  

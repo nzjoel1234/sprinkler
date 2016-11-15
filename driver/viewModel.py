@@ -87,29 +87,14 @@ class ProgramListViewModel(ViewModelBase):
 
     def _on_program_list_result(self, response):
         with self._programsLock:
+            (programs, error) = response
 
-            self._programs = []
-
-            if response == None:
+            if error is not None:
                 self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to load programs (No Response)'))
-                return
-            
-            if response.status_code != 200:
-                self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to load programs (STATUS=%s)' % response.status_code))
+                    MessageViewModel(self._view, self._change_view_model, error))
                 return
 
-            try:
-                self._programs = response.json()
-            except Exception:
-                self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to parse programs'))
-                return
-
+            self._programs = programs
             self._index = 0
             self._move_program(0)
 
@@ -163,22 +148,14 @@ class StartProgramViewModel(ViewModelBase):
         self._enabled = False
 
     def _on_program_start_result(self, response):
+        (success, error_message) = response
 
-            if response == None:
-                self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to start program (No Response)'))
-                return
-
-            if response.status_code != 200:
-                self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to start program (STATUS=%s)' % response.status_code))
-                return
-
+        if not success:
             self._change_view_model( \
-                MessageViewModel(self._view, self._change_view_model, \
-                    'Program started'))
+                MessageViewModel(self._view, self._change_view_model, error_message))
+            return
+
+        self._change_view_model()
 
     def set_enabled(self, enabled):
         super(StartProgramViewModel, self).set_enabled(enabled)
@@ -186,12 +163,8 @@ class StartProgramViewModel(ViewModelBase):
             return
         self._enabled = enabled
         if self._enabled:
-            self._update_display('Starting...', left_option = 'back')
+            self._update_display('Starting...')
             self._sprinkler_service.start_program(self._programId, self._on_program_start_result)
-
-    def on_left_pressed(self):
-        self._change_view_model()
-
 
 
 class StopProgramViewModel(ViewModelBase):
@@ -202,20 +175,14 @@ class StopProgramViewModel(ViewModelBase):
         self._enabled = False
 
     def _on_program_stop_result(self, response):
+        (success, error_message) = response
 
-            if response == None:
-                self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to stop program (No Response)'))
-                return
+        if not success:
+            self._change_view_model( \
+                MessageViewModel(self._view, self._change_view_model, error_message))
+            return
 
-            if response.status_code != 200:
-                self._change_view_model( \
-                    MessageViewModel(self._view, self._change_view_model, \
-                        'ERROR: Failed to stop program (STATUS=%s)' % response.status_code))
-                return
-
-            self._change_view_model()
+        self._change_view_model()
 
     def set_enabled(self, enabled):
         super(StopProgramViewModel, self).set_enabled(enabled)
@@ -223,8 +190,5 @@ class StopProgramViewModel(ViewModelBase):
             return
         self._enabled = enabled
         if self._enabled:
-            self._update_display('Stopping...', left_option = 'back')
+            self._update_display('Stopping...')
             self._sprinkler_service.stop_program(self._on_program_stop_result)
-
-    def on_left_pressed(self):
-        self._change_view_model()

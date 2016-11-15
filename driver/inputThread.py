@@ -93,3 +93,4 @@ class InputThreadWrapper (threading.Thread):
 
     def stop(self):
         self._stop_event.set()
+        self._timeout_stop_event.set()
