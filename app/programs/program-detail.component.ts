@@ -78,7 +78,7 @@ export class ProgramDetailComponent implements OnInit {
         })
         .then(() => {
           this.orderedStages = this.program.stages
-            .sort((a, b) => b.orderId - a.orderId);
+            .sort((a, b) => a.orderId - b.orderId);
         });
     });
   }
