@@ -1,6 +1,5 @@
 import sqlite3 = require('sqlite3');
 import fs = require('fs');
-import rxjs = require ('rxjs');
 
 const schemaVersion = 1;
 
