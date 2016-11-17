@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { Observable } from 'RxJs';
 
+import { AuthenticatedHttp } from '../authentication/authenticated-http.service';
 import { Zone } from './zone';
 
 @Injectable()
 export class ZonesService {
 
-  constructor(private http: Http) {
+  constructor(private http: AuthenticatedHttp) {
   }
 
   private handleError(error: any): Promise<any> {

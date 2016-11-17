@@ -48,9 +48,9 @@ export function update(zone: Zone): Promise<any> {
       SET Name = $name
       WHERE ZoneId = $zoneId
     `, { $name: zone.name, $zoneId: zone.zoneId })
-    .then(() => db.run('select changes()'))
-    .then(changes => {
-      if (!changes) throw new NotFoundError();
+    .then(() => db.get('select changes() as changes'))
+    .then(row => {
+      if (!row.changes) throw new NotFoundError();
     })
     .then(() => zone)
   );

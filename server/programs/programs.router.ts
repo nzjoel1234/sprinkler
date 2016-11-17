@@ -92,7 +92,7 @@ function startProgram(req: express.Request, res: express.Response) {
     .then(() => res.status(200).send())
     .catch(error => {
       if (error instanceof ProgramModel.NotFoundError)
-        return res.status(404).send(JSON.stringify({ detail: 'Not Found' }));
+        return res.status(404).send(JSON.stringify({ error: 'Not Found' }));
       console.log('failed to start program: ' + JSON.stringify(error));
       res.status(500).send(JSON.stringify(error));
     });

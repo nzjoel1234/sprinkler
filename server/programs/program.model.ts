@@ -182,9 +182,9 @@ export function update(program: Program): Promise<number> {
         SET Name = $name
         WHERE ProgramId = $programId
       `, { $name: program.name, $programId: program.programId })
-      .then(() => db.run('select changes()'))
-      .then(changes => {
-        if (!changes) throw new NotFoundError();
+      .then(() => db.get('select changes() as changes'))
+      .then(row => {
+        if (!row.changes) throw new NotFoundError();
       })
       .then(() => updateSchedules(db, program.programId, program.schedules))
       .then(() => updateStages(db, program.programId, program.stages))
@@ -279,9 +279,9 @@ export function start(programId: number): Promise<any> {
         INSERT INTO ManualStart (ProgramId, StartTime)
         VALUES ($programId, CAST(strftime('%s', 'now', 'localtime') AS INTEGER) - 1)
       `, { $programId: programId })
-      .then(() => db.run('select changes()'))
-      .then(changes => {
-        if (!changes) throw new NotFoundError();
+      .then(() => db.get('select changes() as changes'))
+      .then(row => {
+        if (!row.changes) throw new NotFoundError();
       })
       .then(() => db.run('END TRANSACTION'))
       .catch(error => {

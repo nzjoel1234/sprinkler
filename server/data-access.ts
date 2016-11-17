@@ -3,7 +3,7 @@ import fs = require('fs');
 
 const schemaVersion = 1;
 
-const scriptsDir = 'C:/work/personal/sprinkler/database/'
+const scriptsDir = 'C:/work/personal/sprinkler/server/database/'
 const dbPath = scriptsDir + 'db.sqlite3';
 
 function getDbInstance(): Promise<sqlite3.Database> {
@@ -36,6 +36,7 @@ function upgradeIfRequired(db: sqlite3.Database): Promise<any> {
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 1, 'create.sql'))
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 2, 'version_2.sql'))
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 3, 'version_3.sql'))
+        .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 4, 'version_4.sql'))
         .then(() => upgraded = true)
         .then(resolve)
         .catch(reject);

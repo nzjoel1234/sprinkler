@@ -8,8 +8,9 @@ import { Ng2BootstrapModule }     from 'ng2-bootstrap/ng2-bootstrap';
 import { AppComponent }           from './app.component';
 import { routing }                from './app.routing';
 
-import { LoggedInGuard }           from './authentication/logged-in.guard';
+import { AuthenticatedHttp }       from './authentication/authenticated-http.service';
 import { AuthenticationService }   from './authentication/authentication.service';
+import { LoggedInGuard }           from './authentication/logged-in.guard';
 import { LoginComponent }          from './authentication/login.component';
 
 import { SprinklerComponent }      from './sprinkler.component'
@@ -39,6 +40,7 @@ import { ZonesService }            from './zones/zones.service';
   providers: [
     ProgramService,
     ZonesService,
+    AuthenticatedHttp,
     AuthenticationService,
     LoggedInGuard
   ],

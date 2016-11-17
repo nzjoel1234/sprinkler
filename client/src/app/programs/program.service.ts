@@ -1,12 +1,13 @@
 import { Injectable }    from '@angular/core';
-import { Http, Headers, RequestOptions } from '@angular/http';
+
+import { AuthenticatedHttp } from '../authentication/authenticated-http.service';
 
 import { ProgramSummary, Program, ProgramSchedule, ProgramScheduleType, ProgramStage } from './program';
 
 @Injectable()
 export class ProgramService {
   
-  constructor(private http: Http) {
+  constructor(private http: AuthenticatedHttp) {
   }
 
   private handleError(error: any): Promise<any> {
@@ -46,11 +47,9 @@ export class ProgramService {
 
     let url = program.programId > 0 ? `api/programs/${program.programId}` : 'api/programs'
     let body = JSON.stringify(program);
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
 
     return this.http
-      .post(url, body, options)
+      .post(url, body)
       .toPromise()
       .catch(this.handleError);
   }
@@ -58,11 +57,9 @@ export class ProgramService {
   startProgram(programId: number): Promise<any> {
 
     let url = `api/programs/${programId}/start`
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
 
     return this.http
-      .post(url, "", options)
+      .post(url, "")
       .toPromise()
       .catch(this.handleError);
   }

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Router }    from '@angular/router';
+import { Observable } from 'rxjs/Rx';
 
-import { AuthenticationService } from './authentication.service';
+import { AuthenticationService, LoginError } from './authentication.service';
 import { User } from './user';
 
 @Component({
@@ -10,6 +11,8 @@ import { User } from './user';
 })
 export class LoginComponent {
   
+  loginError: string;
+
   username: string;
   password: string;
   
@@ -18,19 +21,23 @@ export class LoginComponent {
     private authenticationService: AuthenticationService) {
   }
   
-  login(): void {
+  login() {
     this.authenticationService
       .login(this.username, this.password)
-      .subscribe(result => {
-        if (result) {
-          this.afterLogin();
-        } else {
-          alert('login failed');
-        }
-      });
+      .subscribe(
+        result => this.afterLogin(),
+        error => {
+          if (error instanceof LoginError)
+            return this.onLoginError(error);
+          return Observable.throw(error);
+        });
   }
 
-  private afterLogin(): void {
+  private onLoginError(error: LoginError) {
+    this.loginError = error.message;
+  }
+
+  private afterLogin() {
     this.router.navigate(['']);
   }
 }
