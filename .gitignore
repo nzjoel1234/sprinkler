@@ -25,3 +25,4 @@ _temp
 database/db.sqlite3
 *.pyc
 database/*.sqlite3
+server/static/

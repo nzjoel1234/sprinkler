@@ -16,7 +16,7 @@ class SprinklerService(object):
         self._stop_event = threading.Event()
 
     def start(self):
-        target = lambda: self._update_next_stage(True)
+        target = lambda: self._update_next_stage(recurring=True)
         threading.Thread(target=target).start()
 
     def get_status(self):
@@ -51,7 +51,7 @@ class SprinklerService(object):
             on_result((False, error))
             return
 
-        self._update_next_stage(recurring=False)
+        self._update_next_stage()
         on_result((True, None))
 
     def start_program(self, program_id, on_result):
@@ -91,7 +91,7 @@ class SprinklerService(object):
         target = lambda: self._do_get_programs(on_result)
         threading.Thread(target=target).start()
 
-    def _update_next_stage(self, recurring):
+    def _update_next_stage(self, recurring=False):
         url = '%s/api/programs/next-scheduled-stage' % self._base_url
         response = self._safe_request(lambda: requests.get(url))
         error = None
@@ -146,4 +146,5 @@ class SprinklerService(object):
             return
 
         if not self._stop_event.wait(POLL_PERIOD):
-            self._update_next_stage(recurring)
+            target = lambda: self._update_next_stage(recurring=True)
+            threading.Thread(target=target).start()
