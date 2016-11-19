@@ -4,8 +4,9 @@ import requests
 POLL_PERIOD = 5
 
 class SprinklerService(object):
-    def __init__(self, baseUrl, zone_service):
+    def __init__(self, baseUrl, username, password, zone_service):
         self._base_url = baseUrl
+        self._auth = (username, password)
         self._zone_service = zone_service
         self._next_stage_lock = threading.RLock()
         self._program_in_progress = False
@@ -40,7 +41,7 @@ class SprinklerService(object):
             return None
 
     def _do_programs_trigger(self, url, action_description, on_result):
-        response = self._safe_request(lambda: requests.post(url))
+        response = self._safe_request(lambda: requests.post(url, auth=self._auth))
 
         if response is None:
             on_result((False, 'ERROR: Failed to %s (No Response)' % action_description))
@@ -66,7 +67,7 @@ class SprinklerService(object):
 
     def _do_get_programs(self, on_result):
         url = '%s/api/programs' % self._base_url
-        response = self._safe_request(lambda: requests.get(url))
+        response = self._safe_request(lambda: requests.get(url, auth=self._auth))
 
         error = None
         if response is None:
@@ -93,7 +94,7 @@ class SprinklerService(object):
 
     def _update_next_stage(self, recurring=False):
         url = '%s/api/programs/next-scheduled-stage' % self._base_url
-        response = self._safe_request(lambda: requests.get(url))
+        response = self._safe_request(lambda: requests.get(url, auth=self._auth))
         error = None
         next_stage = None
         current_zone_id = None

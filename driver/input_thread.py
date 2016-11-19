@@ -1,10 +1,14 @@
 import threading
 
-#import Adafruit_CharLCD as LCD
-import lcd_simulator as LCD
+SIMULATED = False
+try:
+    import Adafruit_CharLCD as Lcd
+except ImportError:
+    import lcd_simulator as Lcd
+    SIMULATED = True
 
 DEBOUNCE_THRESHOLD = 10
-SCREEN_TIMEOUT = 30
+SCREEN_TIMEOUT = 60
 
 class InputThreadWrapper(threading.Thread):
     def __init__(self, is_button_pressed, buttons, create_home_screen):
@@ -53,20 +57,20 @@ class InputThreadWrapper(threading.Thread):
         new_view_model.set_enabled(self._enabled)
 
     def on_button_press(self, button):
-        if button == LCD.SELECT:
+        if button == Lcd.SELECT:
             self.set_enabled(not self._enabled)
         if not self._enabled:
             return
         if self._view_model is None:
             self.set_view_model()
         self._start_screen_timeout()
-        if button == LCD.LEFT:
+        if button == Lcd.LEFT:
             self._view_model.on_left_pressed()
-        elif button == LCD.RIGHT:
+        elif button == Lcd.RIGHT:
             self._view_model.on_right_pressed()
-        elif button == LCD.UP:
+        elif button == Lcd.UP:
             self._view_model.on_up_pressed()
-        elif button == LCD.DOWN:
+        elif button == Lcd.DOWN:
             self._view_model.on_down_pressed()
 
     def run(self):
