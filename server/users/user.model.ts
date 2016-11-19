@@ -42,7 +42,8 @@ export function createUser(username: string, password: string): Promise<any> {
           INSERT INTO User (Username, HashedPassword)
           VALUES ($username, $hashedPassword)
         `, { $username: username, $hashedPassword: hashedPassword })
-    ));
+      )
+    );
 }
 
 export function changePassword(username: string, newPassword: string): Promise<any> {
@@ -51,15 +52,17 @@ export function changePassword(username: string, newPassword: string): Promise<a
     .then(() => passwordHash.generate(newPassword))
     .then(hashedPassword =>
       dataAccess.invoke(db =>
-    db.run(`
-      UPDATE User
-      SET HashedPassword = $hashedPassword
-      WHERE Username = $username
-    `, { $username: username, $hashedPassword: hashedPassword })
-    .then(() => db.get('select changes() as changes'))
-    .then(row => {
-      if (!row.changes) throw new NotFoundError();
-    })
+        db.run(`
+          UPDATE User
+          SET HashedPassword = $hashedPassword
+          WHERE Username = $username
+        `, { $username: username, $hashedPassword: hashedPassword })
+        .then(() => db.get('select changes() as changes'))
+        .then(row => {
+          if (!row.changes) throw new NotFoundError();
+        }
+      )
+    )
   );
 }
 

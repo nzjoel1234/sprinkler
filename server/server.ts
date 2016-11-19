@@ -19,6 +19,7 @@ app.get('*', (req: express.Request, res: express.Response) => {
 });
 
 let PORT = 4000;
+
 app.listen(PORT, () => {
   console.log('Listening on port: ' + PORT);
-})
+});
