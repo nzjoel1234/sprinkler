@@ -17,8 +17,9 @@ import { SprinklerComponent }      from './sprinkler.component'
 
 import { ProgramsComponent }      from './programs/programs.component';
 import { ProgramDetailComponent } from './programs/program-detail.component';
-import { ProgramService }         from './programs/program.service';
+import { SprinklerStatusComponent } from './sprinkler-status/sprinkler-status.component';
 
+import { ProgramService }         from './programs/program.service';
 import { ZonesService }            from './zones/zones.service';
 
 @NgModule({
@@ -35,7 +36,8 @@ import { ZonesService }            from './zones/zones.service';
     LoginComponent,
     SprinklerComponent,
     ProgramsComponent,
-    ProgramDetailComponent
+    ProgramDetailComponent,
+    SprinklerStatusComponent
   ],
   providers: [
     ProgramService,

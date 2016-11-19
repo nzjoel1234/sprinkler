@@ -1,0 +1,16 @@
+<div *ngIf="statusText$ | async"
+      class="panel panel-default status-display">
+  <div class="panel-body">
+  <span class="status-text">
+    {{ statusText$ | async }}
+  </span>
+  <button *ngIf="currentlyActive$ | async"
+          class="btn btn-danger btn-sm stop-button pull-right"
+          type="button"
+          title="start"
+          (click)="stopAllPrograms()">
+          &nbsp;<span class="glyphicon glyphicon-stop"></span> Stop
+  </button>
+  </div>
+
+</div>

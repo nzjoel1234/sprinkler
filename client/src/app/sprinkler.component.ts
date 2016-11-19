@@ -5,7 +5,8 @@ import { AuthenticationService } from './authentication/authentication.service'
 
 @Component({
   selector: 'my-sprinkler',
-  templateUrl: './sprinkler.component.html'
+  templateUrl: './sprinkler.component.html',
+  styleUrls: ['./sprinkler.component.css']
 })
 export class SprinklerComponent {
   public isNavbarCollapsed: boolean = true;

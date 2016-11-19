@@ -1,0 +1,15 @@
+.status-display {
+  background: #222222;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.status-text {
+  color: green;
+  font-size: 1.2em;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.panel-body {
+  padding: 4px 15px;
+}

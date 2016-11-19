@@ -31,3 +31,14 @@ export enum ProgramScheduleType {
   OddDays = 1,
   EvenDays = 2
 }
+
+export class SprinklerStatus {
+  programId: number;
+  programName: string;
+  zoneId: number;
+  zoneName: string;
+  programStartIn: number;
+  programEndIn: number;
+  stageStartIn: number;
+  stageEndIn: number;
+}
