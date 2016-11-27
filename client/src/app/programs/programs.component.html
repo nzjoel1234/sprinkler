@@ -10,7 +10,7 @@
       <th class="col-xs-4 col-sm-3 col-xl-2">
         <a class="btn btn-success text-right"
                 type="button"
-                title="add"
+                title="Add"
                 routerLink="/sprinkler/programs/new">
           &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
         </a>
@@ -24,19 +24,19 @@
       <td>
         <a class="btn btn-default text-right"
                 type="button"
-                title="edit"
+                title="Edit"
                 routerLink="/sprinkler/programs/{{program.programId}}">
           &nbsp;<span class="glyphicon glyphicon-pencil"></span>&nbsp;
         </a>
         <button class="btn btn-danger text-right"
                 type="button"
-                title="delete"
+                title="Delete"
                 (click)="deleteProgram(program)">
           &nbsp;<span class="glyphicon glyphicon-trash"></span>&nbsp;
         </button>
         <button class="btn btn-primary text-right"
                 type="button"
-                title="start"
+                title="Start"
                 (click)="startProgram(program)">
           &nbsp;<span class="glyphicon glyphicon-play"></span>&nbsp;
         </button>

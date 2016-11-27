@@ -27,7 +27,8 @@ class ProgramScheduleViewModel {
 
 @Component({
   selector: 'my-program-detail',
-  templateUrl: './program-detail.component.html'
+  templateUrl: './program-detail.component.html',
+  styleUrls: ['./program-detail.component.css']
 })
 export class ProgramDetailComponent implements OnInit {
   

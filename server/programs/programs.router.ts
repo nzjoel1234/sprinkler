@@ -117,7 +117,11 @@ function nextScheduledStage(req: express.Request, res: express.Response) {
   
   ProgramModel
     .getNextScheduledStage()
-    .then(stage => res.status(200).send(stage ? JSON.stringify(stage) : ""))
+    .then(stage => {
+      if (!stage)
+        res.status(204).send();
+      res.status(200).send(JSON.stringify(stage))
+    })
     .catch(error => {
       console.log('failed to get next scheduled stage: ' + JSON.stringify(error));
       res.status(500).send(JSON.stringify(error));

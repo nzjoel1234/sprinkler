@@ -9,8 +9,8 @@ export class LoginError extends Error {
 }
 
 interface IAuthDetails {
-  username: string,
-  token: string
+  username: string;
+  token: string;
 }
 
 @Injectable()

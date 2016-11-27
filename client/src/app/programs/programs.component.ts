@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ProgramSummary }        from './program';
+import { ProgramSummary } from './program';
 import { ProgramService } from './program.service';
 
 @Component({
@@ -8,8 +8,8 @@ import { ProgramService } from './program.service';
   templateUrl: './programs.component.html'
 })
 export class ProgramsComponent implements OnInit {
+
   programs: ProgramSummary[];
-  selectedProgram: ProgramSummary;
 
   constructor(
     private programService: ProgramService) { }

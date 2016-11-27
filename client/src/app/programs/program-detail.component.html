@@ -6,7 +6,7 @@
   <h2>
     <button class="btn btn-primary text-right pull-right"
             type="button"
-            title="save"
+            title="Save"
             (click)="save()">
       &nbsp;<span class="glyphicon glyphicon-save"></span> Save
     </button>
@@ -27,9 +27,9 @@
           <thead>
             <tr>
               <th class="col-xs-1">
-                <button class="btn btn-sm btn-success text-right"
+                <button class="btn btn-md btn-success text-right"
                         type="button"
-                        title="add"
+                        title="Add"
                         (click)="addSchedule()">
                   &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
                 </button>
@@ -46,9 +46,9 @@
             </tr>
             <tr *ngFor="let schedule of schedules">
               <td>
-                <button class="btn btn-sm btn-danger text-right"
+                <button class="btn btn-md btn-danger text-right"
                         type="button"
-                        title="remove"
+                        title="Remove"
                         (click)="removeSchedule(schedule)">
                   &nbsp;<span class="glyphicon glyphicon-minus"></span>&nbsp;
                 </button>
@@ -78,9 +78,9 @@
           <thead>
             <tr>
               <th class="col-xs-1">
-                <button class="btn btn-sm btn-success text-right"
+                <button class="btn btn-md btn-success text-right"
                         type="button"
-                        title="add"
+                        title="Add"
                         (click)="addStage()">
                   &nbsp;<span class="glyphicon glyphicon-plus"></span>&nbsp;
                 </button>
@@ -91,10 +91,10 @@
           </thead>
           <tbody>
             <tr *ngFor="let stage of program.stages">
-              <td>
-                <button class="btn btn-sm btn-danger text-right"
+              <td class="button-cell">
+                <button class="btn btn-md btn-danger text-right"
                         type="button"
-                        title="remove"
+                        title="Remove"
                         (click)="removeStage(stage)">
                   &nbsp;<span class="glyphicon glyphicon-minus"></span>&nbsp;
                 </button>

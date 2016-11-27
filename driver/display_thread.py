@@ -6,6 +6,7 @@ class DisplayThreadWrapper(threading.Thread):
     def __init__(self, lcd, scroller):
         threading.Thread.__init__(self)
         self._lcd = lcd
+        self._lcd.set_color(0, 0, 0)
         self._scroller = scroller
         self._enabled = False
         self._stop_event = threading.Event()
@@ -22,13 +23,18 @@ class DisplayThreadWrapper(threading.Thread):
             self._lcd.enable_display(enable)
 
     def run(self):
+        last_lines = ''
         while not self._stop_event.is_set():
             with self._thread_lock:
                 if self._enabled:
-                    self._lcd.clear()
-                    self._lcd.message(self._scroller.get_lines())
+                    new_lines = self._scroller.get_lines()
+                    if new_lines != last_lines:
+                        self._lcd.set_cursor(0, 0)
+                        self._lcd.message(new_lines)
+                        last_lines = new_lines
                     self._scroller.scroll()
             self._stop_event.wait(SCROLL_PERIOD)
 
     def stop(self):
         self._stop_event.set()
+

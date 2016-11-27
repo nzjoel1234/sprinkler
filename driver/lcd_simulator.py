@@ -56,6 +56,9 @@ class Adafruit_CharLCDPlate:
         self._lines = text.splitlines()
         self._update_screen()
 
+    def set_cursor(self, row, col):
+        return
+
     def set_color(self, red, green, blue):
         return
 
