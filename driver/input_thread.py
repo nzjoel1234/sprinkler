@@ -7,7 +7,7 @@ except ImportError:
     import lcd_simulator as Lcd
     SIMULATED = True
 
-DEBOUNCE_THRESHOLD = 10
+DEBOUNCE_THRESHOLD = 2
 SCREEN_TIMEOUT = 60
 
 class InputThreadWrapper(threading.Thread):

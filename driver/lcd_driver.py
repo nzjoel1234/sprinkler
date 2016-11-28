@@ -11,8 +11,10 @@ import view_model as VM
 SIMULATED = False
 try:
     import Adafruit_CharLCD as Lcd
+    import RPi.GPIO as GPIO
 except ImportError:
     import lcd_simulator as Lcd
+    import gpio_simulator as GPIO
     SIMULATED = True
 
 if not len(sys.argv) == 3:
@@ -28,7 +30,7 @@ BASE_URL = 'http://localhost:4000'
 LCD = Lcd.Adafruit_CharLCDPlate()
 SCROLLER = Scroller(width=16, height=2, space=" * * * ")
 
-ZONE_SERVICE = ZoneService()
+ZONE_SERVICE = ZoneService(GPIO)
 SPRINKLER_SERVICE = SprinklerService(BASE_URL, USERNAME, PASSWORD, ZONE_SERVICE)
 
 DISPLAY_THREAD = DisplayThreadWrapper(LCD, SCROLLER)
@@ -54,6 +56,7 @@ except:
     print '! Exception !'
 
 print "stopping threads..."
+ZONE_SERVICE.stop()
 SPRINKLER_SERVICE.stop()
 DISPLAY_THREAD.stop()
 INPUT_THREAD.stop()
