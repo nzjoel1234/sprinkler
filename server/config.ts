@@ -1,7 +1,7 @@
 import fs = require('fs');
 
 let config = {
-  databaseScriptPath: 'PATH TO DATABASE FOLDER'
+  databaseScriptPath: '/database'
 };
 
 try {

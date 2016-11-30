@@ -19,9 +19,9 @@ class ZoneService(object):
 
     def set_zone(self, zone_id):
         off_pins = [value for key, value in PIN_BY_ZONE.items() if key != zone_id]
-        self._gpio.output(off_pins, self._gpio.LOW)
+        self._gpio.output(off_pins, self._gpio.HIGH)
         if zone_id in PIN_BY_ZONE:
-            self._gpio.output(PIN_BY_ZONE[zone_id], self._gpio.HIGH)
+            self._gpio.output(PIN_BY_ZONE[zone_id], self._gpio.LOW)
 
     def stop(self):
-        self._gpio.output(ALL_PINS, self._gpio.LOW)
+        self._gpio.output(VCC, self._gpio.LOW)
