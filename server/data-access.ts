@@ -60,21 +60,40 @@ function executeUpgradeScriptIfRequired(db: sqlite3.Database, currentVersion: nu
     }));
 }
 
+class Invocation {
+  completed: boolean;
+  promise: Promise<any>;
+}
+
+let queuedInvocations: Invocation[] = []
+
 export function invoke<T>(callback: (connection: SqliteConnection) => Promise<T>): Promise<T> {
-  return getDbInstance()
-    .then(db => {
-      let result =
-        callback(new SqliteConnection(db))
-          .then(result => {
-            db.close();
-            return result;
-          })
+  queuedInvocations = queuedInvocations.filter(i => !i.completed);
+  let promise = new Promise<T>((resolve, reject) => {
+    return Promise
+      .all(queuedInvocations.map(i => i.promise))
+      .then(() => {
+        let invocation: Invocation = { completed: false, promise };
+        queuedInvocations = [...queuedInvocations, invocation];
+        return getDbInstance()
+          .then(db => 
+            callback(new SqliteConnection(db))
+              .then(result => {
+                db.close();
+                resolve(result);
+              })
+              .catch(error => {
+                db.close();
+                throw error;
+              }))
+          .then(() => invocation.completed = true)
           .catch(error => {
-            db.close();
-            throw error;
-      });
-      return result
-    });
+              invocation.completed = true;
+              reject(error);
+          });
+      })
+  });
+  return promise;
 }
 
 export class SqliteConnection {
