@@ -21,6 +21,7 @@ import { SprinklerStatusComponent } from './sprinkler-status/sprinkler-status.co
 
 import { ProgramService }         from './programs/program.service';
 import { ZonesService }            from './zones/zones.service';
+import { ScheduleTimeComponent } from './programs/schedule-time/schedule-time.component';
 
 @NgModule({
   imports: [
@@ -37,7 +38,8 @@ import { ZonesService }            from './zones/zones.service';
     SprinklerComponent,
     ProgramsComponent,
     ProgramDetailComponent,
-    SprinklerStatusComponent
+    SprinklerStatusComponent,
+    ScheduleTimeComponent
   ],
   providers: [
     ProgramService,

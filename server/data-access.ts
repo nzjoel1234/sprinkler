@@ -1,9 +1,9 @@
 import sqlite3 = require('sqlite3');
 import fs = require('fs');
 
-const schemaVersion = 1;
+import config = require('./config');
 
-const scriptsDir = 'C:/work/personal/sprinkler/server/database/'
+const scriptsDir = config.databaseScriptPath;
 const dbPath = scriptsDir + 'db.sqlite3';
 
 function getDbInstance(): Promise<sqlite3.Database> {
@@ -32,11 +32,12 @@ function upgradeIfRequired(db: sqlite3.Database): Promise<any> {
       if (upgraded)
         return resolve();
 
-      Promise.resolve()
+      return Promise.resolve()
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 1, 'create.sql'))
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 2, 'version_2.sql'))
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 3, 'version_3.sql'))
         .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 4, 'version_4.sql'))
+        .then(() => executeUpgradeScriptIfRequired(db, row.user_version as number, 5, 'version_5.sql'))
         .then(() => upgraded = true)
         .then(resolve)
         .catch(reject);
@@ -62,9 +63,8 @@ function executeUpgradeScriptIfRequired(db: sqlite3.Database, currentVersion: nu
 export function invoke<T>(callback: (connection: SqliteConnection) => Promise<T>): Promise<T> {
   return getDbInstance()
     .then(db => {
-      let result: Promise<any>;
-      db.serialize(() =>
-        result = callback(new SqliteConnection(db))
+      let result =
+        callback(new SqliteConnection(db))
           .then(result => {
             db.close();
             return result;
@@ -72,7 +72,7 @@ export function invoke<T>(callback: (connection: SqliteConnection) => Promise<T>
           .catch(error => {
             db.close();
             throw error;
-      }));
+      });
       return result
     });
 }

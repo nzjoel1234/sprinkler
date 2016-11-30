@@ -1,7 +1,7 @@
 import threading
 
 class Scroller(object):
-    def __init__(self, lines=None, space=" :: ", delay=3, width=16, height=2):
+    def __init__(self, lines=None, space=" * ", delay=3, width=16, height=2):
         self._width = width
         self._height = height
         self._space = space
@@ -32,7 +32,7 @@ class Scroller(object):
                 self.restart_scroll()
 
     def get_lines(self):
-        truncated = []
+        lines = []
         with self._thread_lock:
             for i, line in enumerate(self._lines):
                 if len(line) > self._width:
@@ -43,9 +43,9 @@ class Scroller(object):
                 else:
                     current_index = 0
                     processed = line
-                truncated.append(processed)
+                lines.append(processed.ljust(self._width))
 
-            return "\n".join(truncated)
+            return "\n".join(lines)
 
     def restart_scroll(self):
         with self._thread_lock:

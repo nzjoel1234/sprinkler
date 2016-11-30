@@ -7,12 +7,13 @@
     <button class="btn btn-primary text-right pull-right"
             type="button"
             title="Save"
+            *ngIf="!isSaving"
             (click)="save()">
       &nbsp;<span class="glyphicon glyphicon-save"></span> Save
     </button>
     Edit Program
   </h2>
-  <div class="row">
+  <div class="row" *ngIf="!isSaving">
     <div class="col-md-6">
       <div class="form-group">
         <label for="programName">Name</label>
@@ -54,7 +55,7 @@
                 </button>
               </td>
               <td>
-                <select class="form-control" [(ngModel)]="schedule.model.scheduleType">
+                <select class="form-control" [(ngModel)]="schedule.scheduleType">
                   <option *ngFor="let programScheduleType of programScheduleTypes"
                           value="{{programScheduleType.value}}">
                           {{programScheduleType.display}}
@@ -62,12 +63,11 @@
                 </select>
               </td>
               <td>
-                <timepicker id="startTime"
-                            [(ngModel)]="schedule.startTime"
-                            (change)="schedule.startTimeChanged()"
-                            [showMeridian]="false"
-                            [showSpinners]="false">
-                </timepicker>
+                <app-schedule-time
+                  [hours]="schedule.startTimeHours"
+                  [minutes]="schedule.startTimeMinutes"
+                  (timeChanged)="scheduleStartTimeChanged(schedule, $event)">
+                </app-schedule-time>
               </td>
             </tr>
           </tbody>

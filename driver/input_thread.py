@@ -93,7 +93,7 @@ class InputThreadWrapper(threading.Thread):
                         and not self._button_latched[button]:
                     self._button_latched[button] = True
                     self.on_button_press(button)
-            self._stop_event.wait(0.001)
+            self._stop_event.wait(0.01)
 
     def stop(self):
         self._stop_event.set()

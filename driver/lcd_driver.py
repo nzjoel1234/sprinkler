@@ -28,7 +28,7 @@ BUTTONS = (Lcd.SELECT, Lcd.LEFT, Lcd.UP, Lcd.DOWN, Lcd.RIGHT)
 BASE_URL = 'http://localhost:4000'
 
 LCD = Lcd.Adafruit_CharLCDPlate()
-SCROLLER = Scroller(width=16, height=2, space=" * * * ")
+SCROLLER = Scroller(width=16, height=2)
 
 ZONE_SERVICE = ZoneService(GPIO)
 SPRINKLER_SERVICE = SprinklerService(BASE_URL, USERNAME, PASSWORD, ZONE_SERVICE)

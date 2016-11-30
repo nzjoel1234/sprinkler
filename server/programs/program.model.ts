@@ -293,25 +293,33 @@ export function start(programId: number): Promise<any> {
 
 export function stop(): Promise<any> {
   return dataAccess.invoke(db =>
-    db.run(`
-      UPDATE ManualStop
-      SET StopTime = CAST(strftime('%s', 'now', 'localtime') AS INTEGER)
-      WHERE ManualStopId = 1
-    `)
-  );
+    db.run('BEGIN TRANSACTION')
+      .then(() =>
+        db.run(`
+          UPDATE ManualStop
+          SET StopTime = CAST(strftime('%s', 'now', 'localtime') AS INTEGER)
+          WHERE ManualStopId = 1
+      `))
+      .then(() => db.run('END TRANSACTION'))
+      .catch(error => {
+        db.run('ROLLBACK TRANSACTION');
+        throw error;
+      }));
 }
 
 export function getNextScheduledStage(): Promise<ScheduledStage> {
   return dataAccess.invoke(db =>
-      db.run(`
-        DELETE FROM ManualStart
-        WHERE ManualStartId IN
-        (
-          SELECT ManualStartId
-          FROM ScheduledStage
-          WHERE ScheduledStage.ProgramEndIn < 0
-        )
-      `)
+    db.run('BEGIN TRANSACTION')
+      .then(() =>
+        db.run(`
+          DELETE FROM ManualStart
+          WHERE ManualStartId IN
+          (
+            SELECT ManualStartId
+            FROM ScheduledStage
+            WHERE ScheduledStage.ProgramEndIn < 0
+          )
+        `))
       .then(() =>
         db.run(`
           DELETE FROM ManualStart
@@ -329,7 +337,7 @@ export function getNextScheduledStage(): Promise<ScheduledStage> {
                 ON NewerScheduledStage.ProgramStartIn > OlderScheduledStage.ProgramStartIn
                   AND NewerScheduledStage.ProgramStartIn <= 0
           )
-      `))
+        `))
       .then(() =>
         db.get(`
           SELECT
@@ -352,7 +360,13 @@ export function getNextScheduledStage(): Promise<ScheduledStage> {
             ProgramStartIn * ProgramStartIn, -- Want the unsigned start time so that the last started program goes first
             StageStartIn
           LIMIT 1
-        `)
-      )
-      .then(stage => stage as ScheduledStage));
+        `))
+      .then(stage => {
+        db.run('END TRANSACTION');
+        return stage as ScheduledStage
+      })
+      .catch(error => {
+        db.run('ROLLBACK TRANSACTION');
+        throw error;
+      }));
 }

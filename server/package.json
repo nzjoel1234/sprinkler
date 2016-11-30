@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "tsc && concurrently \"tsc --watch\" \"nodemon server.js\"",
+    "startprod": "tsc && concurrently \"tsc --watch\" \"node server.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

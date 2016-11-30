@@ -10,7 +10,7 @@ import { ProgramService } from '../programs/program.service';
   styleUrls: ['./sprinkler-status.component.css']
 })
 export class SprinklerStatusComponent implements OnInit, OnDestroy {
-  
+
   statusText$: ReplaySubject<string> = new ReplaySubject<string>(1);
   currentlyActive$: ReplaySubject<Boolean> = new ReplaySubject<Boolean>(1);
   subscription: Subscription;
@@ -20,11 +20,11 @@ export class SprinklerStatusComponent implements OnInit, OnDestroy {
       this.statusText$.next('Loading status...');
       this.currentlyActive$.next(false);
   }
-  
+
   ngOnInit(): void {
     this.updateStatus();
   }
-  
+
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
