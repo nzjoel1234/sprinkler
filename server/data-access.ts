@@ -69,31 +69,36 @@ let queuedInvocations: Invocation[] = []
 
 export function invoke<T>(callback: (connection: SqliteConnection) => Promise<T>): Promise<T> {
   queuedInvocations = queuedInvocations.filter(i => !i.completed);
-  let promise = new Promise<T>((resolve, reject) => {
-    return Promise
-      .all(queuedInvocations.map(i => i.promise))
-      .then(() => {
-        let invocation: Invocation = { completed: false, promise };
-        queuedInvocations = [...queuedInvocations, invocation];
-        return getDbInstance()
-          .then(db => 
-            callback(new SqliteConnection(db))
-              .then(result => {
-                db.close();
-                resolve(result);
-              })
-              .catch(error => {
-                db.close();
-                throw error;
-              }))
-          .then(() => invocation.completed = true)
-          .catch(error => {
+  return new Promise<T>((resolve, reject) => {
+    let thisInvocation = new Promise((resolveThisInvocation) => {
+      return Promise
+        .all(queuedInvocations.map(i => i.promise))
+        .then(() => {
+          let invocation: Invocation = { completed: false, promise: thisInvocation };
+          queuedInvocations = [...queuedInvocations, invocation];
+          return getDbInstance()
+            .then(db => 
+              callback(new SqliteConnection(db))
+                .then(result => {
+                  db.close();
+                  resolve(result);
+                })
+                .catch(error => {
+                  db.close();
+                  throw error;
+                }))
+            .then(() => {
               invocation.completed = true;
-              reject(error);
-          });
-      })
+              resolveThisInvocation();
+            })
+            .catch(error => {
+                invocation.completed = true;
+                resolveThisInvocation();
+                reject(error);
+            });
+        })
+    })
   });
-  return promise;
 }
 
 export class SqliteConnection {
