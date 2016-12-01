@@ -57,8 +57,6 @@ export class SprinklerStatusComponent implements OnInit, OnDestroy {
   updateStatus(): Promise<any> {
     const refreshIntervalMs = 5000;
 
-    console.log('updating manually...');
-
     if (this.subscription) {
       this.subscription.unsubscribe();
     }

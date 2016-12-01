@@ -4,12 +4,18 @@
 </ol>
 <div *ngIf="program">
   <h2>
-    <button class="btn btn-primary text-right pull-right"
+    <button class="btn btn-primary text-right pull-right margin-left-5"
             type="button"
             title="Save"
             *ngIf="!isSaving"
             (click)="save()">
       &nbsp;<span class="glyphicon glyphicon-save"></span> Save
+    </button>
+    <button class="btn btn-primary text-right pull-right margin-left-5"
+            type="button"
+            title="Start"
+            (click)="startProgram()">
+      &nbsp;<span class="glyphicon glyphicon-play"></span> Start
     </button>
     Edit Program
   </h2>

@@ -120,6 +120,11 @@ export class ProgramDetailComponent implements OnInit {
     this.schedules.splice(index, 1);
   }
 
+  startProgram(): void {
+    this.programService.startProgram(this.program.programId)
+      .catch(() => alert('Failed to start program'));
+  }
+
   save(): void {
     this.isSaving = true;
     this.program.schedules = this.schedules;
