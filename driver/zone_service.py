@@ -15,6 +15,8 @@ class ZoneService(object):
         self._gpio = gpio
         self._gpio.setmode(gpio.BCM)
         self._gpio.setup(ALL_PINS, self._gpio.OUT)
+        self._gpio.output(VCC, self._gpio.LOW)
+        self._gpio.output(PIN_BY_ZONE.values(), self._gpio.HIGH)
         self._gpio.output(VCC, self._gpio.HIGH)
 
     def set_zone(self, zone_id):
