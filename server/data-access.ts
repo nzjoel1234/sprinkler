@@ -1,10 +1,13 @@
 import sqlite3 = require('sqlite3');
 import fs = require('fs');
+let ReadWriteLock = require('rwlock');
 
 import config = require('./config');
 
 const scriptsDir = config.databaseScriptPath;
 const dbPath = scriptsDir + 'db.sqlite3';
+
+var lock = new ReadWriteLock();
 
 function getDbInstance(): Promise<sqlite3.Database> {
   let instance: sqlite3.Database;
@@ -60,40 +63,24 @@ function executeUpgradeScriptIfRequired(db: sqlite3.Database, currentVersion: nu
     }));
 }
 
-class Invocation {
-  completed: boolean;
-  promise: Promise<any>;
-}
-
-let queuedInvocations: Invocation[] = []
-
 export function invoke<T>(callback: (connection: SqliteConnection) => Promise<T>): Promise<T> {
-  queuedInvocations = queuedInvocations.filter(i => !i.completed);
-  let promise = new Promise<T>((resolve, reject) => {
-    return Promise
-      .all(queuedInvocations.map(i => i.promise))
-      .then(() => {
-        let invocation: Invocation = { completed: false, promise };
-        queuedInvocations = [...queuedInvocations, invocation];
-        return getDbInstance()
-          .then(db => 
-            callback(new SqliteConnection(db))
-              .then(result => {
-                db.close();
-                resolve(result);
-              })
-              .catch(error => {
-                db.close();
-                throw error;
-              }))
-          .then(() => invocation.completed = true)
-          .catch(error => {
-              invocation.completed = true;
-              reject(error);
-          });
-      })
+  return new Promise((resolve, reject) => {
+    lock.writeLock(function (release:(() => null)) {
+      getDbInstance()
+        .then(db => 
+          callback(new SqliteConnection(db))
+            .then(result => {
+              db.close();
+              resolve(result);
+              release();
+            })
+            .catch(error => {
+              db.close();
+              release();
+              throw error;
+            }))
+    });
   });
-  return promise;
 }
 
 export class SqliteConnection {
