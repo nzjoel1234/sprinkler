@@ -13,7 +13,6 @@ var logger = function(req: express.Request, res: express.Response, next: express
 app.use(logger);
 
 app.use('/api', apiRouter);
-app.use('/.well-known', express.static('/var/www/letsencrypt/.well-known'));
 app.use('/', express.static(path.resolve(__dirname, 'static')));
 app.get('*', (req: express.Request, res: express.Response) => {
   res.sendFile(path.resolve(__dirname, 'static', 'index.html'));
