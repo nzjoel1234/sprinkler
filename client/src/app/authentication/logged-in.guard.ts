@@ -9,8 +9,11 @@ export class LoggedInGuard implements CanActivate {
     private authenticationService: AuthenticationService) {}
 
   canActivate(): boolean {
+    return true;
+    /*
     if (!!this.authenticationService.getCurrentUser()) return true;
     this.router.navigate(['login']);
     return false;
+    */
   }
 }

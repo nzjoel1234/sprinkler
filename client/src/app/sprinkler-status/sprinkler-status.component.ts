@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ReplaySubject, Subscription } from 'rxjs';
+import { Observable, ReplaySubject, Subscription } from 'rxjs';
 
 import { SprinklerStatus } from '../programs/program';
 import { ProgramService } from '../programs/program.service';
@@ -61,16 +61,24 @@ export class SprinklerStatusComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
 
+    let triggerWait = () => {
+      Observable
+        .of(null)
+        .delay(refreshIntervalMs)
+        .subscribe(() => this.updateStatus())
+    }
+
     this.subscription = this.programService
       .sprinklerStatus$
-      .timeout(refreshIntervalMs)
       .subscribe(status => {
         this.currentlyActive$.next(this.isStatusActive(status));
-        this.statusText$.next(this.getStatusText(status));
-      }, error => this.updateStatus());
+        this.statusText$.next(this.getStatusText(status))
+      });
 
     return this.programService
-      .updateSprinklerStatus();
+      .updateSprinklerStatus()
+      .then(() => triggerWait())
+      .catch(() => triggerWait());
   }
 
   stopAllPrograms(): void {

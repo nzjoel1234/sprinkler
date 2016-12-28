@@ -43,11 +43,13 @@ export class AuthenticatedHttp {
         options.headers = new Headers();
     }
     options.headers.append('Content-Type', 'application/json');
-    options.headers.append('Authorization', this.authenticationService.getAuthToken())
+    //options.headers.append('Authorization', this.authenticationService.getAuthToken())
     return options;
   }
 
   intercept(observable: Observable<Response>): Observable<Response> {
+    return observable;
+    /*
     return observable.catch((err, source) => {
       if (err.status == 401) {
         console.log('Redirect to login page...');
@@ -57,5 +59,6 @@ export class AuthenticatedHttp {
         return Observable.throw(err);
       }
     });
+    */
   }
 }

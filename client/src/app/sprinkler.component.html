@@ -18,16 +18,6 @@
         <ul class="nav navbar-nav" *ngIf="!!getCurrentUser()">
           <li><a routerLink="/programs">Programs</a></li>
         </ul>
-        <ul class="nav navbar-nav navbar-right" *ngIf="!!getCurrentUser()">
-          <li><p class="navbar-text">Signed in as {{getCurrentUser().username}}</p></li>
-          <li>
-            <button type="button"
-                    class="btn btn-danger navbar-btn"
-                    (click)="logout()">
-               &nbsp;<i class="glyphicon glyphicon-log-out"></i>&nbsp;Sign Out
-            </button>
-          </li>
-        </ul>
       </div>
     </div>
   </nav>
