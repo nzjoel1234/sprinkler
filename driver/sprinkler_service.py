@@ -101,7 +101,7 @@ class SprinklerService(object):
 
         if response is None:
             error = 'ERROR: Failed to get next stage (No Response)'
-        elif response.status_code != 200:
+        elif response.status_code != 200 and response.status_code != 204:
             error = 'ERROR: Failed to get next stage (STATUS=%s)' % response.status_code
         else:
             if response.text != '':

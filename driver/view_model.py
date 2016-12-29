@@ -45,6 +45,12 @@ class HomeViewModel(ViewModelBase):
         self._change_view_model( \
             ProgramListViewModel(self._view, self._change_view_model, self._sprinkler_service))
 
+    def on_up_pressed(self):
+        self.on_right_pressed()
+
+    def on_down_pressed(self):
+        self.on_right_pressed()
+
     def set_enabled(self, enabled):
         super(HomeViewModel, self).set_enabled(enabled)
         if self._enabled == enabled:
