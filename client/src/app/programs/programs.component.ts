@@ -23,6 +23,7 @@ export class ProgramsComponent implements OnInit {
   }
 
   deleteProgram(program: ProgramSummary): void {
+    if (!confirm(`Are you sure you want to delete program '${program.name}'`)) { return; }
     this.programs = this.programs.filter(p => p.programId !== program.programId);
     this.programService.deleteProgram(program.programId)
       .then(() => this.getPrograms())
