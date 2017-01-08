@@ -8,10 +8,13 @@ const scriptsDir = config.databaseScriptPath;
 const dbPath = scriptsDir + 'db.sqlite3';
 
 var lock = new ReadWriteLock();
+var instance: sqlite3.Database;
 
 function getDbInstance(): Promise<sqlite3.Database> {
-  let instance: sqlite3.Database;
   return new Promise((resolve, reject) => {
+    if (instance) {
+      return resolve(instance);
+    }
     instance = new sqlite3.Database(dbPath, error => {
       if (error) {
         console.log('Failed to connect to db: ' + JSON.stringify(error));
@@ -67,18 +70,14 @@ export function invoke<T>(callback: (connection: SqliteConnection) => Promise<T>
   return new Promise((resolve, reject) => {
     lock.writeLock(function (release:(() => null)) {
       getDbInstance()
-        .then(db => 
-          callback(new SqliteConnection(db))
-            .then(result => {
-              db.close();
-              resolve(result);
-              release();
-            })
-            .catch(error => {
-              db.close();
-              release();
-              throw error;
-            }))
+        .then(db => new SqliteConnection(db))
+        .then(connection => callback(connection))
+        .then(result => resolve(result))
+        .then(() => release())
+        .catch(error => {
+          release();
+          reject(error);
+        })
     });
   });
 }
